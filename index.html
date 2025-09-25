@@ -641,7 +641,15 @@
             }
             
             .balance-value {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+
+            .balance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .balance-item:last-child {
+                margin-top: 1rem;
             }
         }
 
@@ -658,6 +666,11 @@
         }
         
         /* Today's Trades Table styles */
+        .trades-table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
         .trades-table {
             width: 100%;
             border-collapse: collapse;
@@ -674,8 +687,13 @@
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.6);
             text-transform: uppercase;
+            white-space: nowrap; /* Prevents column headers from wrapping */
         }
         
+        .trades-table td {
+            white-space: nowrap; /* Prevents cell content from wrapping */
+        }
+
         .trades-table tbody tr:last-child td {
             border-bottom: none;
         }
@@ -872,8 +890,8 @@
                     <div class="portfolio-icon">⚡️</div>
                     <h3>Today's Trades</h3>
                 </div>
-                <!-- Added a wrapper for horizontal scrolling on mobile -->
-                <div style="overflow-x: auto;">
+                <!-- Wrapper for horizontal scrolling on small screens -->
+                <div class="trades-table-container">
                     <table class="trades-table">
                         <thead>
                             <tr>
