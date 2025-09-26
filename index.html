@@ -152,13 +152,15 @@
 
         /* Hero Section */
         .hero {
-            height: 100vh;
+            /* Adjusted for better mobile spacing */
+            min-height: 80vh; 
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             position: relative;
             background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            padding-top: 100px; /* Space for fixed header */
         }
 
         .hero-content {
@@ -198,6 +200,12 @@
             from { opacity: 0; transform: translateX(50px); }
             to { opacity: 1; transform: translateX(0); }
         }
+        
+        .hero h4 {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.7;
+        }
 
         .cta-button {
             display: inline-block;
@@ -212,6 +220,7 @@
             animation: fadeIn 1s ease-out 0.9s both;
             position: relative;
             overflow: hidden;
+            margin-bottom: 30px; /* Reduced space below button */
         }
 
         .cta-button:hover {
@@ -364,7 +373,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem; /* Reduced space below header */
         }
 
         .portfolio-icon {
@@ -772,6 +781,31 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
         }
+        
+        /* Added style for the new "See All Trades" button */
+        .trades-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .trades-actions .view-all-button {
+            background: none;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            color: #FFD700;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .trades-actions .view-all-button:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFA500;
+        }
 
     </style>
 </head>
@@ -786,6 +820,15 @@
             <button class="popup-close-btn" id="popupCloseBtn">OK</button>
         </div>
     </div>
+    
+    <!-- Trade History Popup (Using the same structure as the profile popup) -->
+    <div class="popup-overlay" id="tradesPopupOverlay">
+        <div class="popup-content">
+            <div class="popup-message">We are still working on it.</div>
+            <button class="popup-close-btn" id="tradesPopupCloseBtn">OK</button>
+        </div>
+    </div>
+
 
     <!-- Header -->
     <header>
@@ -850,14 +893,16 @@
                 <div class="balance-grid">
                     <div class="balance-item">
                         <span class="balance-label">Invested Amount</span>
-                        <span id="invested-amount" class="balance-value">₹5,00,000</span>
+                        <span id="invested-amount" class="balance-value" data-target="500000">₹5,00,000</span>
                     </div>
                     <div class="balance-item">
                         <span class="balance-label">Current Value</span>
-                        <span id="current-value" class="balance-value">₹5,01,573</span>
+                        <!-- CORRECTED CURRENT VALUE: 501573 (previous) + 2888 (today's profit) = 504461 -->
+                        <span id="current-value" class="balance-value" data-target="504461">₹5,04,461</span>
                     </div>
                 </div>
-                <div class="balance-change positive" id="balance-change">+0.31% (₹1,573)</div>
+                <!-- CORRECTED BALANCE CHANGE: 4461 (total profit) / 500000 (invested) = 0.008922 or 0.89% -->
+                <div class="balance-change positive" id="balance-change">+0.89% (₹4,461)</div>
             </div>
             
             <div class="allocation-grid">
@@ -886,50 +931,71 @@
 
             <!-- Today's Trades Section -->
             <div class="portfolio-card" style="margin-top: 3rem;">
-                <div class="portfolio-header">
-                    <div class="portfolio-icon">⚡️</div>
-                    <h3>Today's Trades</h3>
+                <!-- Header with Title and Button -->
+                <div class="trades-actions">
+                    <div class="portfolio-header" style="margin-bottom: 0;">
+                        <div class="portfolio-icon">⚡️</div>
+                        <h3>Today's Trades</h3>
+                    </div>
+                    <button class="view-all-button" id="seeAllTradesBtn">See All Trades</button>
                 </div>
-                <!-- Wrapper for horizontal scrolling on small screens -->
-                <div class="trades-table-container">
-                    <table class="trades-table">
-                        <thead>
-                            <tr>
-                                <th>Symbol</th>
-                                <th>Type</th>
-                                <th>Quantity</th>
-                                <th>PNL</th>
-                            </tr>
-                        </thead>
-                        <tbody id="today-trades-table-body">
-                            <tr>
-                                <td>GBP/USD</td>
-                                <td class="trade-type buy">Buy</td>
-                                <td>0.2</td>
-                                <td class="trade-pnl positive">₹400</td>
-                            </tr>
-                            <tr>
-                                <td>USD/JPY</td>
-                                <td class="trade-type buy">Buy</td>
-                                <td>0.2</td>
-                                <td class="trade-pnl positive">₹345.2</td>
-                            </tr>
-                            <tr>
-                                <td>GBP/USD</td>
-                                <td class="trade-type buy">Buy</td>
-                                <td>0.2</td>
-                                <td class="trade-pnl positive">₹625</td>
-                            </tr>
-                            <tr>
-                                <td>USD/JPY</td>
-                                <td class="trade-type buy">Buy</td>
-                                <td>0.2</td>
-                                <td class="trade-pnl positive">₹203</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                
+                <p id="todayDate" style="font-size: 1rem; color: #FFD700; margin-bottom: 1.5rem;"></p>
+                
+                <!-- MARKET HOLIDAY MESSAGE (Visible on weekend) -->
+                <div id="marketHolidayMessage" style="display: none; height: 180px; align-items: center; justify-content: center; text-align: center;">
+                    <h4 style="font-size: 2rem; color: #f87171; letter-spacing: 2px;">MARKET HOLIDAY</h4>
                 </div>
+
+                <!-- TRADES CONTENT (Visible on weekdays) -->
+                <div id="tradesContent">
+                    <!-- Wrapper for horizontal scrolling on small screens -->
+                    <div class="trades-table-container">
+                        <table class="trades-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>PNL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="today-trades-table-body">
+                                <!-- UPDATED TRADES BASED ON USER REQUEST -->
+                                <tr>
+                                    <td>GBP/USD</td>
+                                    <td class="trade-type buy">Buy</td>
+                                    <td>0.4</td>
+                                    <td class="trade-pnl positive">₹800</td>
+                                </tr>
+                                <tr>
+                                    <td>AUD/CHF</td>
+                                    <td class="trade-type buy">Buy</td>
+                                    <td>0.1</td>
+                                    <td class="trade-pnl negative">₹-556</td>
+                                </tr>
+                                <tr>
+                                    <td>GBP/USD</td>
+                                    <td class="trade-type buy">Buy</td>
+                                    <td>0.4</td>
+                                    <!-- Calculated PNL to keep total at 2888 (2888 - 800 - (-556) = 2644) -->
+                                    <td class="trade-pnl positive">₹2,644</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Today's PNL Summary inside the same card -->
+                    <div style="text-align: center; font-size: 2.5rem; font-weight: bold; margin-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem;">
+                        <span style="font-size: 1.5rem; font-weight: 500; opacity: 0.8;">Today's PNL</span>
+                        <br>
+                        <!-- UPDATED TODAY'S PNL: 2888 -->
+                        <span class="trade-pnl positive" data-target="2888">₹2,888</span>
+                    </div>
+                </div>
+
             </div>
+
         </div>
     </section>
 
@@ -956,6 +1022,7 @@
                 <div class="service-icon">📈</div>
                 <h3>Portfolio Management</h3>
                 <p>Diversified portfolio optimization across crypto and forex markets with dynamic rebalancing and risk-adjusted returns for maximum performance.</p>
+            </p>
             </div>
             <div class="service-card">
                 <div class="service-icon">🛡️</div>
@@ -1003,7 +1070,16 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // --- Market Status Check ---
+        function isMarketHoliday() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+            // Forex markets are typically closed on Saturday (6) and Sunday (0)
+            return dayOfWeek === 0 || dayOfWeek === 6;
+        }
+
         // Animated background particles
         function createParticles() {
             const container = document.getElementById('bgAnimation');
@@ -1024,7 +1100,7 @@
 
         // Counter animation
         function animateCounters() {
-            const counters = document.querySelectorAll('.stat-number');
+            const counters = document.querySelectorAll('.stat-number, .balance-value, .trade-pnl[data-target]');
             
             counters.forEach(counter => {
                 const target = parseFloat(counter.getAttribute('data-target'));
@@ -1037,9 +1113,40 @@
                         current = target;
                         clearInterval(timer);
                     }
-                    counter.textContent = current.toFixed(target % 1 !== 0 ? 1 : 0);
+                    
+                    // Custom formatting for Indian currency (Lakhs)
+                    if (counter.classList.contains('balance-value')) {
+                        const formattedLakhs = formatInLakhs(current);
+                        counter.textContent = formattedLakhs;
+                    } 
+                    // Formatting for general PNL values
+                    else if (counter.classList.contains('trade-pnl')) {
+                        const formattedValue = current.toLocaleString('en-IN', {
+                            style: 'currency',
+                            currency: 'INR',
+                            maximumFractionDigits: 0
+                        });
+                        counter.textContent = formattedValue;
+                    } 
+                    // Formatting for regular stats
+                    else {
+                        counter.textContent = current.toFixed(target % 1 !== 0 ? 1 : 0);
+                    }
                 }, 20);
             });
+        }
+        
+        // Function to format numbers in Indian Lakhs format (e.g., 500000 -> 5,00,000)
+        function formatInLakhs(number) {
+            const num = Math.round(number);
+            const str = num.toString();
+            let lastThree = str.substring(str.length - 3);
+            let otherNumbers = str.substring(0, str.length - 3);
+            if (otherNumbers != '') {
+                lastThree = ',' + lastThree;
+            }
+            let res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+            return '₹' + res;
         }
 
         // Scroll animations
@@ -1081,23 +1188,59 @@
             
             handleScrollAnimations();
         });
+        
+        // Function to update the date display
+        function updateDateDisplay() {
+            const dateElement = document.getElementById('todayDate');
+            if (dateElement) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const today = new Date();
+                dateElement.textContent = `Date: ${today.toLocaleDateString('en-US', options)}`;
+            }
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             createParticles();
+            updateDateDisplay();
             
-            // Show popup when the profile icon is clicked
-            const popupOverlay = document.getElementById('popupOverlay');
-            const popupCloseBtn = document.getElementById('popupCloseBtn');
+            // --- Profile Popup Logic ---
+            const profilePopupOverlay = document.getElementById('popupOverlay');
+            const profilePopupCloseBtn = document.getElementById('popupCloseBtn');
             const profileIcon = document.getElementById('profileIcon');
 
             profileIcon.addEventListener('click', () => {
-                popupOverlay.style.display = 'flex';
+                profilePopupOverlay.style.display = 'flex';
             });
 
-            popupCloseBtn.addEventListener('click', () => {
-                popupOverlay.style.display = 'none';
+            profilePopupCloseBtn.addEventListener('click', () => {
+                profilePopupOverlay.style.display = 'none';
             });
+            
+            // --- See All Trades Popup Logic ---
+            const tradesPopupOverlay = document.getElementById('tradesPopupOverlay');
+            const tradesPopupCloseBtn = document.getElementById('tradesPopupCloseBtn');
+            const seeAllTradesBtn = document.getElementById('seeAllTradesBtn');
+            
+            seeAllTradesBtn.addEventListener('click', () => {
+                tradesPopupOverlay.style.display = 'flex';
+            });
+            
+            tradesPopupCloseBtn.addEventListener('click', () => {
+                tradesPopupOverlay.style.display = 'none';
+            });
+
+            // --- Market Holiday Conditional Display Logic ---
+            const tradesContent = document.getElementById('tradesContent');
+            const marketHolidayMessage = document.getElementById('marketHolidayMessage');
+
+            if (isMarketHoliday()) {
+                tradesContent.style.display = 'none';
+                marketHolidayMessage.style.display = 'flex';
+            } else {
+                tradesContent.style.display = 'block';
+                marketHolidayMessage.style.display = 'none';
+            }
             
             // Trigger counter animation when stats section is visible
             const observer = new IntersectionObserver((entries) => {
