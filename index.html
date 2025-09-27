@@ -388,6 +388,33 @@
             font-size: 1.8rem;
             color: #FFD700;
         }
+        
+        /* New styles for the Leaderboard button container */
+        .portfolio-title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .leaderboard-button {
+            background: none;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            color: #FFD700;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .leaderboard-button:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFA500;
+        }
+
 
         .balance-grid {
             display: grid;
@@ -886,10 +913,17 @@
         <h2 class="section-title">Live Portfolio Overview</h2>
         <div class="portfolio-container">
             <div class="portfolio-card main-balance">
-                <div class="portfolio-header">
-                    <div class="portfolio-icon">💼</div>
-                    <h3>Total Portfolio Value</h3>
+                <!-- NEW CONTAINER FOR TITLE AND LEADERBOARD BUTTON -->
+                <div class="portfolio-title-container">
+                    <div class="portfolio-header" style="margin-bottom: 0;">
+                        <div class="portfolio-icon">💼</div>
+                        <h3>Total Portfolio Value</h3>
+                    </div>
+                    <!-- LEADERBOARD BUTTON -->
+                    <a href="#leaderboard-page" class="leaderboard-button">View Leaderboard</a>
                 </div>
+                <!-- END NEW CONTAINER -->
+
                 <div class="balance-grid">
                     <div class="balance-item">
                         <span class="balance-label">Invested Amount</span>
@@ -897,11 +931,9 @@
                     </div>
                     <div class="balance-item">
                         <span class="balance-label">Current Value</span>
-                        <!-- CORRECTED CURRENT VALUE: 501573 (previous) + 2888 (today's profit) = 504461 -->
                         <span id="current-value" class="balance-value" data-target="504461">₹5,04,461</span>
                     </div>
                 </div>
-                <!-- CORRECTED BALANCE CHANGE: 4461 (total profit) / 500000 (invested) = 0.008922 or 0.89% -->
                 <div class="balance-change positive" id="balance-change">+0.89% (₹4,461)</div>
             </div>
             
@@ -961,7 +993,6 @@
                                 </tr>
                             </thead>
                             <tbody id="today-trades-table-body">
-                                <!-- UPDATED TRADES BASED ON USER REQUEST -->
                                 <tr>
                                     <td>GBP/USD</td>
                                     <td class="trade-type buy">Buy</td>
@@ -978,7 +1009,6 @@
                                     <td>GBP/USD</td>
                                     <td class="trade-type buy">Buy</td>
                                     <td>0.4</td>
-                                    <!-- Calculated PNL to keep total at 2888 (2888 - 800 - (-556) = 2644) -->
                                     <td class="trade-pnl positive">₹2,644</td>
                                 </tr>
                             </tbody>
@@ -989,7 +1019,6 @@
                     <div style="text-align: center; font-size: 2.5rem; font-weight: bold; margin-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem;">
                         <span style="font-size: 1.5rem; font-weight: 500; opacity: 0.8;">Today's PNL</span>
                         <br>
-                        <!-- UPDATED TODAY'S PNL: 2888 -->
                         <span class="trade-pnl positive" data-target="2888">₹2,888</span>
                     </div>
                 </div>
