@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeCore Investment - Member Portfolio Leaderboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .particle {
+            position: absolute;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #FFD700;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        #profileIcon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        #profileIcon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        #profileIcon svg {
+            fill: #000000;
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Hero Section for Portfolio Page */
+        .portfolio-hero {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            padding-top: 100px;
+        }
+
+        .portfolio-hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .portfolio-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideInLeft 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .portfolio-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: slideInRight 1s ease-out 0.6s both;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Member Profile Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .member-popup-content {
+            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+            border: 2px solid #FFD700;
+            border-radius: 25px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: rgba(255, 215, 0, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #FFD700;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .popup-close:hover {
+            background: rgba(255, 215, 0, 0.4);
+            transform: scale(1.1);
+        }
+
+        .member-popup-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .member-popup-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .member-popup-info h2 {
+            color: #FFD700;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-popup-info p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.2rem;
+        }
+
+        .member-popup-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .popup-stat-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .popup-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .popup-stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .popup-stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .popup-stat-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .popup-stat-info h4 {
+            color: #FFD700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .popup-stat-info p {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Mobile responsive for popup */
+        @media (max-width: 768px) {
+            .member-popup-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .member-popup-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .member-popup-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .popup-stat-card {
+                padding: 1rem;
+            }
+
+            .member-popup-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .member-popup-info h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Search Bar Styles */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 4rem auto;
+            position: relative;
+        }
+
+        .search-box {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .search-icon {
+            width: 24px;
+            height: 24px;
+            color: #FFD700;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-family: inherit;
+            padding: 0.5rem 0;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .clear-search {
+            background: rgba(255, 215, 0, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: #FFD700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .clear-search:hover {
+            background: rgba(255, 215, 0, 0.4);
+            transform: scale(1.1);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .search-result-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            font-size: 1.2rem;
+        }
+
+        .result-info h4 {
+            color: #FFD700;
+            margin-bottom: 0.2rem;
+            font-size: 1.2rem;
+        }
+
+        .result-rank {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .result-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .result-stat-value {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .result-returns {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .no-results {
+            padding: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        /* Mobile responsive for search */
+        @media (max-width: 768px) {
+            .search-container {
+                margin: 0 1rem 3rem 1rem;
+            }
+
+            .search-box {
+                padding: 0.8rem 1rem;
+            }
+
+            .search-input {
+                font-size: 1rem;
+            }
+
+            .result-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .search-result-item {
+                padding: 1rem;
+            }
+        }
+            padding: 5rem 5%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+        }
+
+        .leaderboard-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255, 165, 0, 0.08) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .leaderboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Top 3 Podium */
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 2rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+        
+        /* FIX: Ensure 1st, 2nd, 3rd order from left to right. */
+        .podium-item {
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+            min-width: 250px;
+        }
+
+        .podium-item.first {
+            order: 1; /* Puts Rank 1 on the far left */
+            animation-delay: 0.2s;
+        }
+
+        .podium-item.second {
+            order: 2; /* Puts Rank 2 in the middle */
+            animation-delay: 0.4s;
+        }
+
+        .podium-item.third {
+            order: 3; /* Puts Rank 3 on the far right */
+            animation-delay: 0.6s;
+        }
+        /* END FIX */
+
+        .podium-card {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 25px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(15px);
+            cursor: pointer; /* Added for visual cue */
+        }
+        
+        .podium-card:active {
+            transform: scale(0.98);
+        }
+
+        .podium-item.first .podium-card {
+            border: 2px solid #FFD700;
+            transform: scale(1.1);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .podium-item.second .podium-card {
+            border: 2px solid #C0C0C0;
+            box-shadow: 0 15px 30px rgba(192, 192, 192, 0.2);
+        }
+
+        .podium-item.third .podium-card {
+            border: 2px solid #CD7F32;
+            box-shadow: 0 15px 30px rgba(205, 127, 50, 0.2);
+        }
+
+        .podium-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .podium-item.first .podium-card:hover {
+            transform: scale(1.1) translateY(-10px);
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .rank-badge.first {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+        }
+
+        .rank-badge.second {
+            background: linear-gradient(45deg, #C0C0C0, #A8A8A8);
+        }
+
+        .rank-badge.third {
+            background: linear-gradient(45deg, #CD7F32, #B8860B);
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 1rem auto;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .member-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .returns-positive {
+            color: #4ade80;
+        }
+
+        .returns-negative {
+            color: #f87171;
+        }
+
+        /* Leaderboard Table */
+        .leaderboard-table-container {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 25px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .leaderboard-table th {
+            padding: 1.5rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            font-size: 1.1rem;
+            color: #FFD700;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .leaderboard-table td {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-table tbody tr.highlighted {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            animation: highlight-pulse 2s ease-in-out;
+        }
+
+        @keyframes highlight-pulse {
+            0%, 100% { background: rgba(255, 215, 0, 0.2); }
+            50% { background: rgba(255, 215, 0, 0.4); }
+        }
+
+        .leaderboard-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-rank {
+            font-weight: bold;
+            color: #FFD700;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 60px;
+        }
+
+        .table-member {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .table-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .member-info h4 {
+            color: #ffffff;
+            margin-bottom: 0.2rem;
+            font-size: 1.1rem;
+        }
+
+        .member-name-clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .member-name-clickable:hover {
+            color: #FFD700 !important;
+            transform: translateX(3px);
+        }
+
+        .member-name-clickable::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            transition: width 0.3s ease;
+        }
+
+        .member-name-clickable:hover::after {
+            width: 100%;
+        }
+
+        .member-info p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .table-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .table-returns {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .table-percentage {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Summary */
+        .stats-summary {
+            display: grid;
+            /* Changed to 3 columns since Total Returns was removed */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .summary-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .summary-card:hover::before {
+            opacity: 1;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .summary-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 5%;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            color: #FFD700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #FFD700;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            opacity: 0.6;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .portfolio-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .podium {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .podium-item {
+                order: initial !important;
+            }
+
+            .podium-item.first .podium-card {
+                transform: none;
+            }
+
+            .podium-item.first .podium-card:hover {
+                transform: translateY(-10px);
+            }
+
+            .leaderboard-table-container {
+                padding: 1rem;
+            }
+
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 1rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .table-member {
+                flex-direction: row; /* Keep horizontal for narrow view */
+                text-align: left;
+                gap: 0.5rem;
+            }
+            
+            /* Adjust spacing in table row when type is removed */
+            .member-info h4 {
+                margin-bottom: 0; /* Remove bottom margin if p tag below it is removed */
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <!-- Member Profile Popup -->
+    <div class="popup-overlay" id="memberProfilePopup">
+        <div class="member-popup-content">
+            <div class="popup-close" id="closeMemberPopup">✕</div>
+            <div class="member-popup-header">
+                <div class="member-popup-avatar" id="popupAvatar"></div>
+                <div class="member-popup-info">
+                    <h2 id="popupMemberName"></h2>
+                    <!-- Removed: <p id="popupMemberType"></p> -->
+                    <p id="popupMemberRank"></p>
+                </div>
+            </div>
+            
+            <div class="member-popup-stats">
+                <div class="popup-stat-card">
+                    <div class="popup-stat-icon">💰</div>
+                    <div class="popup-stat-info">
+                        <h4>Total Invested</h4>
+                        <p id="popupInvestedAmount"></p>
+                    </div>
+                </div>
+                
+                <div class="popup-stat-card">
+                    <div class="popup-stat-icon">📈</div>
+                    <div class="popup-stat-info">
+                        <h4>Current Value</h4>
+                        <p id="popupCurrentValue"></p>
+                    </div>
+                </div>
+                
+                <div class="popup-stat-card">
+                    <div class="popup-stat-icon">💸</div>
+                    <div class="popup-stat-info">
+                        <h4>Total Returns</h4>
+                        <p id="popupTotalReturns"></p>
+                    </div>
+                </div>
+                
+                <div class="popup-stat-card">
+                    <div class="popup-stat-icon">📊</div>
+                    <div class="popup-stat-info">
+                        <h4>Return Percentage</h4>
+                        <p id="popupReturnPercentage"></p>
+                    </div>
+                </div>
+                
+                <div class="popup-stat-card">
+                    <div class="popup-stat-icon">📅</div>
+                    <div class="popup-stat-info">
+                        <h4>Investment Date</h4>
+                        <p id="popupInvestmentDate"></p>
+                    </div>
+                </div>
+                
+                <div class="popup-stat-card">
+                    <div class="popup-stat-icon">⏰</div>
+                    <div class="popup-stat-info">
+                        <h4>Investment Period</h4>
+                        <p id="popupInvestmentPeriod">N/A</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="https://i.ibb.co/JWL598wk/GOLDEN-T-T.png" alt="TC Investment Logo">
+                <span class="logo-text">TC Investment</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
+                <li><a href="#stats">Statistics</a></li>
+            </ul>
+            <div id="profileIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
+                </svg>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="portfolio-hero">
+        <div class="portfolio-hero-content">
+            <h1>Member Portfolio Leaderboard</h1>
+            <p>Track the performance of all TradeCore Investment members and see who's leading the charge in profitable trading.</p>
+        </div>
+    </section>
+
+    <!-- Stats Summary (Updated to 3 columns and new values) -->
+    <section class="stats-summary fade-in" id="stats" style="padding: 3rem 5%;">
+        <div class="summary-card">
+            <div class="summary-number" data-target="9">0</div>
+            <div class="summary-label">Total Members</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-number" data-target="5">0</div>
+            <div class="summary-label">Lakhs Total Capital</div>
+        </div>
+        <!-- Total Returns (Lakhs) card removed -->
+        <div class="summary-card">
+            <div class="summary-number" data-target="9.0">0</div>
+            <div class="summary-label">% Average Returns</div>
+        </div>
+    </section>
+
+    <!-- Leaderboard Section -->
+    <section class="leaderboard-section fade-in" id="leaderboard">
+        <div class="leaderboard-container">
+            <h2 class="section-title">Top Performers</h2>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="memberSearch" placeholder="Search for member by ID..." class="search-input">
+                    <button class="clear-search" id="clearSearch" style="display: none;">✕</button>
+                </div>
+                <div class="search-results" id="searchResults" style="display: none;"></div>
+            </div>
+            
+            <!-- Top 3 Podium (UPDATED DATA) -->
+            <div class="podium">
+                <!-- 1st Place - AB01 -->
+                <div class="podium-item first">
+                    <div class="podium-card" onclick="showMemberPopup('AB01')">
+                        <div class="rank-badge first">1</div>
+                        <div class="member-avatar" id="podium-avatar-1">AB</div>
+                        <div class="member-name member-name-clickable" id="podium-name-1">AB01</div>
+                        <div class="member-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">Invested:</span>
+                                <span class="stat-value">₹60,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Current:</span>
+                                <span class="stat-value">₹64,700</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Returns:</span>
+                                <span class="stat-value returns-positive">+₹4,700</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Growth:</span>
+                                <span class="stat-value returns-positive">+7.83%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2nd Place - SB01 -->
+                <div class="podium-item second">
+                    <div class="podium-card" onclick="showMemberPopup('SB01')">
+                        <div class="rank-badge second">2</div>
+                        <div class="member-avatar" id="podium-avatar-2">SB</div>
+                        <div class="member-name member-name-clickable" id="podium-name-2">SB01</div>
+                        <div class="member-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">Invested:</span>
+                                <span class="stat-value">₹1,00,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Current:</span>
+                                <span class="stat-value">₹1,05,640</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Returns:</span>
+                                <span class="stat-value returns-positive">+₹5,640</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Growth:</span>
+                                <span class="stat-value returns-positive">+5.64%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3rd Place - GB01 -->
+                <div class="podium-item third">
+                    <div class="podium-card" onclick="showMemberPopup('GB01')">
+                        <div class="rank-badge third">3</div>
+                        <div class="member-avatar" id="podium-avatar-3">GB</div>
+                        <div class="member-name member-name-clickable" id="podium-name-3">GB01</div>
+                        <div class="member-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">Invested:</span>
+                                <span class="stat-value">₹1,00,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Current:</span>
+                                <span class="stat-value">₹1,04,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Returns:</span>
+                                <span class="stat-value returns-positive">+₹4,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Growth:</span>
+                                <span class="stat-value returns-positive">+4.00%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Leaderboard Table -->
+            <div class="leaderboard-table-container">
+                <h3 style="color: #FFD700; margin-bottom: 2rem; text-align: center; font-size: 2rem;">Complete Member Rankings</h3>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Member</th>
+                            <th>Invested Amount</th>
+                            <th>Current Value</th>
+                            <th>Total Returns</th>
+                            <th>Growth %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-table-body">
+                        <!-- Table rows will be dynamically generated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>TradeCore Investment</h3>
+                <p>Elite trading performance across Crypto & Forex markets. Precision algorithms and strategic execution.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Trading Services</h3>
+                <a href="#services">Cryptocurrency Trading</a><br>
+                <a href="#services">Forex Trading</a><br>
+                <a href="#services">Market Analysis</a><br>
+                <a href="#services">Algorithmic Trading</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 tradecore@gmail.com</p>
+                <p>📞 +91 9359361016</p>
+                <p>🏢 Seminary Hills, Nagpur</p>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <a href="#">Privacy Policy</a><br>
+                <a href="#">Terms of Service</a><br>
+                <a href="#">Risk Disclosure</a><br>
+                <a href="#">Regulatory Info</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TradeCore Investment. All rights reserved. | SEC Registered Investment Advisor</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data Source (Type and Full names removed for privacy) ---
+        
+        // This array now holds the core investment and return data, using numbers for easier calculation.
+        // It maintains the 9 members totaling 5,00,000 invested capital.
+        let rawMemberData = [
+            // { avatar, invested, returns, investmentDate, period }
+            { avatar: "GB", invested: 100000, returns: 4000, investmentDate: "N/A", period: "N/A" },
+            { avatar: "NB", invested: 100000, returns: 3760, investmentDate: "N/A", period: "N/A" },
+            { avatar: "SB", invested: 100000, returns: 5640, investmentDate: "N/A", period: "N/A" },
+            { avatar: "AB", invested: 60000, returns: 4700, investmentDate: "N/A", period: "N/A" },
+            { avatar: "AB", invested: 50000, returns: 455, investmentDate: "N/A", period: "N/A" },
+            { avatar: "SD", invested: 50000, returns: 455, investmentDate: "N/A", period: "N/A" },
+            { avatar: "AB", invested: 20000, returns: 182, investmentDate: "N/A", period: "N/A" },
+            { avatar: "NI", invested: 10000, returns: 91, investmentDate: "N/A", period: "N/A" },
+            { avatar: "AD", invested: 10000, returns: 91, investmentDate: "N/A", period: "N/A" }
+        ];
+
+        // --- Core logic to process, sort, and re-rank the data ---
+
+        // Step 1 & 2: Calculate metrics and process data
+        let processedData = rawMemberData.map(member => {
+            const invested = member.invested;
+            const returns = member.returns;
+            const current = invested + returns;
+            const percentage = (returns / invested) * 100;
+
+            return {
+                ...member,
+                current: current,
+                percentage: percentage
+            };
+        });
+
+        // Step 3: Sort the data (Primary: % descending, Secondary: Invested descending)
+        processedData.sort((a, b) => {
+            // Primary sort: Percentage descending (highest performer is Rank 1)
+            if (b.percentage !== a.percentage) {
+                return b.percentage - a.percentage;
+            }
+            // Secondary sort (for ties): Invested descending (higher invested wins tie)
+            return b.invested - a.invested;
+        });
+
+        // Step 4: Reassign Ranks (1 to 9)
+        processedData = processedData.map((member, index) => {
+            return {
+                ...member,
+                rank: index + 1
+            };
+        });
+
+        // Helper to format currency/numbers for display
+        function formatNumber(num) {
+            return num.toLocaleString('en-IN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+        
+        // --- Core logic to generate unique numbered initials (e.g., GB01, AB02) ---
+        function generateUniqueAvatars(data) {
+            const initialsCount = {};
+            return data.map(member => {
+                const baseInitials = member.avatar;
+                
+                if (!initialsCount[baseInitials]) {
+                    initialsCount[baseInitials] = 1;
+                } else {
+                    initialsCount[baseInitials]++;
+                }
+                
+                const count = initialsCount[baseInitials];
+                const numberSuffix = count < 10 ? `0${count}` : `${count}`;
+                const uniqueAvatar = `${baseInitials}${numberSuffix}`;
+
+                return {
+                    ...member,
+                    baseAvatar: baseInitials, 
+                    avatar: uniqueAvatar, // e.g., 'GB01'
+                    
+                    // Format numbers for display in the UI
+                    invested: formatNumber(member.invested),
+                    current: formatNumber(member.current),
+                    returns: formatNumber(member.returns),
+                    percentage: member.percentage.toFixed(2),
+                };
+            });
+        }
+        
+        // --- Custom logic to apply user-specified dates based on final unique IDs ---
+        function applyCustomDates(data) {
+            // Mapping provided by the user (assuming AD01 is the final member)
+            // Note: The previous request used NI02 which I mapped to AD01 based on 9 total members. 
+            const dateUpdates = {
+                "AB01": "Sep 5, 2024", // Rank 1
+                "SB01": "Sep 12, 2024", // Rank 2
+                "GB01": "Sep 15, 2024", // Rank 3
+                "NB01": "Sep 19, 2024", // Rank 4
+                "AB02": "Sep 25, 2024", // Rank 5
+                "SD01": "Sep 25, 2024", // Rank 6
+                "AB03": "Sep 25, 2024", // Rank 7
+                "NI01": "Sep 25, 2024", // Rank 8
+                "AD01": "Sep 25, 2024" // Rank 9 (Used AD01 instead of NI02 for consistency)
+            };
+
+            return data.map(member => {
+                if (dateUpdates[member.avatar]) {
+                    // Update the date based on the final unique ID
+                    member.investmentDate = dateUpdates[member.avatar];
+                    // Reset period to N/A since exact period calculation isn't provided
+                    member.period = 'N/A'; 
+                }
+                return member;
+            });
+        }
+
+        // Final data array for the UI
+        let memberData = generateUniqueAvatars(processedData);
+        // Apply the new dates here, using the generated unique IDs for lookup
+        memberData = applyCustomDates(memberData); 
+        
+        // --- Member Profile Popup Functions (Now searches by unique ID) ---
+        function showMemberPopup(memberId) {
+            // Find member by the unique ID (e.g., 'GB01')
+            const member = memberData.find(m => m.avatar === memberId);
+            if (!member) return;
+
+            // Update popup content: Use BASE AVATAR for the popup circle
+            document.getElementById('popupAvatar').textContent = member.baseAvatar; 
+            // Display the unique ID in the pop-up header.
+            document.getElementById('popupMemberName').textContent = member.avatar; 
+            
+            // Removed: document.getElementById('popupMemberType').textContent = member.type;
+            
+            document.getElementById('popupMemberRank').textContent = `Rank #${member.rank}`;
+            
+            document.getElementById('popupInvestedAmount').textContent = `₹${member.invested}`;
+            document.getElementById('popupCurrentValue').textContent = `₹${member.current}`;
+            
+            const returnsEl = document.getElementById('popupTotalReturns');
+            const percentageEl = document.getElementById('popupReturnPercentage');
+            const dateEl = document.getElementById('popupInvestmentDate');
+            
+            const isPositive = parseFloat(member.percentage) >= 0;
+            const sign = isPositive ? '+' : '-';
+
+            returnsEl.textContent = `${sign}₹${member.returns}`;
+            returnsEl.className = isPositive ? 'returns-positive' : 'returns-negative';
+
+            percentageEl.textContent = `${sign}${member.percentage}%`;
+            percentageEl.className = isPositive ? 'returns-positive' : 'returns-negative';
+
+            dateEl.textContent = member.investmentDate || 'N/A';
+            document.getElementById('popupInvestmentPeriod').textContent = member.period || 'N/A';
+
+            // Show popup
+            document.getElementById('memberProfilePopup').style.display = 'flex';
+        }
+
+        function closeMemberPopup() {
+            document.getElementById('memberProfilePopup').style.display = 'none';
+        }
+
+        // --- Search functionality (Now only searches initials/ID) ---
+        function initializeSearch() {
+            const searchInput = document.getElementById('memberSearch');
+            const clearButton = document.getElementById('clearSearch');
+            const searchResults = document.getElementById('searchResults');
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+                
+                if (query.length > 0) {
+                    clearButton.style.display = 'flex';
+                    performSearch(query);
+                } else {
+                    clearButton.style.display = 'none';
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                clearButton.style.display = 'none';
+                searchResults.style.display = 'none';
+                searchInput.focus();
+            });
+
+            // Hide search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                }
+            });
+        }
+
+        function performSearch(query) {
+            const searchResults = document.getElementById('searchResults');
+            const results = memberData.filter(member => 
+                // Search only checks base initials and unique ID
+                member.baseAvatar.toLowerCase().includes(query) ||
+                member.avatar.toLowerCase().includes(query)
+            );
+
+            if (results.length > 0) {
+                displaySearchResults(results);
+            } else {
+                displayNoResults();
+            }
+        }
+
+        function displaySearchResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            let html = '';
+
+            results.forEach(member => {
+                const isPositive = parseFloat(member.percentage) >= 0;
+                const sign = isPositive ? '+' : '';
+                const returnsClass = isPositive ? 'result-returns' : 'result-negative';
+                
+                html += `
+                    <div class="search-result-item" onclick="highlightMemberInTable(${member.rank})">
+                        <div class="result-header">
+                            <div class="result-avatar">${member.baseAvatar}</div>
+                            <div class="result-info">
+                                <h4>${member.avatar}</h4> <!-- Showing only the unique ID (e.g., GB01) -->
+                                <p class="result-rank">Rank #${member.rank}</p> <!-- Removed member type -->
+                            </div>
+                        </div>
+                        <div class="result-stats">
+                            <div class="result-stat">
+                                <span class="result-stat-label">Invested:</span>
+                                <span class="result-stat-value">₹${member.invested}</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-stat-label">Returns:</span>
+                                <span class="result-stat-value ${returnsClass}">${sign}₹${member.returns}</span>
+                            </div>
+                            <div class="result-stat">
+                                <span class="result-stat-label">Growth:</span>
+                                <span class="result-stat-value ${returnsClass}">${sign}${member.percentage}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+            searchResults.style.display = 'block';
+        }
+
+        function displayNoResults() {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '<div class="no-results">No members found matching your search.</div>';
+            searchResults.style.display = 'block';
+        }
+
+        function highlightMemberInTable(rank) {
+            document.getElementById('searchResults').style.display = 'none';
+            
+            const tableRows = document.querySelectorAll('#leaderboard-table-body tr');
+            const targetRow = Array.from(tableRows).find(row => {
+                const rankCell = row.querySelector('.table-rank');
+                return rankCell && parseInt(rankCell.textContent) === rank;
+            });
+
+            if (targetRow) {
+                tableRows.forEach(row => row.classList.remove('highlighted'));
+                
+                targetRow.classList.add('highlighted');
+                
+                const tableContainer = document.querySelector('.leaderboard-table-container');
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                setTimeout(() => {
+                    targetRow.classList.remove('highlighted');
+                }, 3000);
+            }
+        }
+
+        // --- Dynamic Table Generation (Now passes unique ID to popup) ---
+        function generateLeaderboardTable() {
+            const tableBody = document.getElementById('leaderboard-table-body');
+            tableBody.innerHTML = ''; // Clear existing (hardcoded) content
+
+            memberData.forEach(member => {
+                const isPositive = parseFloat(member.percentage) >= 0;
+                const sign = isPositive ? '+' : '';
+                const returnsClass = isPositive ? 'returns-positive' : 'returns-negative';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="table-rank">${member.rank}</td>
+                    <td class="table-member">
+                        <div class="table-avatar">${member.baseAvatar}</div>
+                        <div class="member-info">
+                            <h4 class="member-name-clickable" onclick="showMemberPopup('${member.avatar}')">${member.avatar}</h4>
+                            <!-- Removed: <p>${member.type}</p> -->
+                        </div>
+                    </td>
+                    <td class="table-amount">₹${member.invested}</td>
+                    <td class="table-amount">₹${member.current}</td>
+                    <td class="table-returns ${returnsClass}">${sign}₹${member.returns}</td>
+                    <td class="table-percentage ${returnsClass}">${sign}${member.percentage}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // --- Animated background particles ---
+        function createParticles() {
+            const container = document.getElementById('bgAnimation');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // --- Counter animation ---
+        function animateCounters() {
+            const counters = document.querySelectorAll('.summary-number[data-target]');
+            
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const increment = target / 100;
+                let current = 0;
+                
+                // Clear any existing interval to prevent overlapping animations
+                if (counter.timer) clearInterval(counter.timer);
+
+                counter.timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(counter.timer);
+                    }
+                    
+                    // Format based on target value (0 decimal for total members/capital, 2 for returns/percentage)
+                    const decimals = target % 1 !== 0 ? 2 : 0;
+                    counter.textContent = current.toFixed(decimals);
+                }, 20);
+            });
+        }
+
+        // --- Scroll animations (FIXED GLITCH: window.innerWidth to window.innerHeight) ---
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                // FIX: Used window.innerHeight for correct scroll calculation
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // --- Podium Update function to set the unique IDs ---
+        function updatePodiumInitials() {
+            // Rank 1
+            document.getElementById('podium-avatar-1').textContent = memberData[0].baseAvatar;
+            document.getElementById('podium-name-1').textContent = memberData[0].avatar;
+            
+            // Rank 2
+            document.getElementById('podium-avatar-2').textContent = memberData[1].baseAvatar;
+            document.getElementById('podium-name-2').textContent = memberData[1].avatar;
+
+            // Rank 3
+            document.getElementById('podium-avatar-3').textContent = memberData[2].baseAvatar;
+            document.getElementById('podium-name-3').textContent = memberData[2].avatar;
+        }
+
+        // --- Initialization and Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initializeSearch();
+            generateLeaderboardTable(); // Generate the table dynamically
+            updatePodiumInitials(); // Update the top 3 with the new IDs
+
+            // Profile icon functionality (placeholder)
+            const profileIcon = document.getElementById('profileIcon');
+            profileIcon.addEventListener('click', () => {
+                // IMPORTANT: Removed alert() and replaced with console log as per best practices.
+                console.log('Profile functionality coming soon!');
+            });
+
+            // Member popup close functionality
+            const closeMemberPopupBtn = document.getElementById('closeMemberPopup');
+            const memberPopupOverlay = document.getElementById('memberProfilePopup');
+            
+            closeMemberPopupBtn.addEventListener('click', closeMemberPopup);
+            
+            // Close popup when clicking outside
+            memberPopupOverlay.addEventListener('click', function(e) {
+                if (e.target === memberPopupOverlay) {
+                    closeMemberPopup();
+                }
+            });
+            
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && memberPopupOverlay.style.display === 'flex') {
+                    closeMemberPopup();
+                }
+            });
+            
+            // Trigger counter animation when stats section is visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounters();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 }); // Added threshold for better visibility trigger
+            
+            const statsSection = document.querySelector('.stats-summary');
+            if (statsSection) {
+                observer.observe(statsSection);
+            }
+            
+            // Initial scroll animation check
+            handleScrollAnimations();
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(0, 0, 0, 0.98)';
+            } else {
+                header.style.background = 'rgba(0, 0, 0, 0.95)';
+            }
+            
+            handleScrollAnimations();
+        });
+
+        // Mouse move parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const particles = document.querySelectorAll('.particle');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            particles.forEach((particle, index) => {
+                const speed = (index % 5 + 1) * 0.5;
+                const x = (mouseX - 0.5) * speed * 50;
+                const y = (mouseY - 0.5) * speed * 50;
+                particle.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
