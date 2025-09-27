@@ -248,6 +248,74 @@
             to { opacity: 1; }
         }
 
+        /* Floating Leaderboard Button (FAB) */
+        .floating-leaderboard-btn {
+            position: fixed; /* Ensures it stays in the same place on scroll */
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 15px; /* Initial padding for a circle */
+            border-radius: 50px; /* Makes it a circle */
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden; /* Crucial for hiding text initially */
+            width: 50px; /* Initial fixed width */
+            height: 50px; /* Initial fixed height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; /* Base font size for the Rupee sign */
+        }
+        
+        /* State when hovered/focused */
+        .floating-leaderboard-btn:hover,
+        .floating-leaderboard-btn:focus {
+            width: auto; /* Expands width to fit text */
+            padding: 15px 25px; /* Adjust padding for expanded view */
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.7);
+            font-size: 0.9rem; /* Smaller font size for the expanded text */
+        }
+        
+        .floating-leaderboard-btn .icon {
+            /* The Rupee sign is now the icon */
+            display: inline-block;
+            transition: opacity 0.3s ease;
+        }
+        
+        .floating-leaderboard-btn:hover .icon,
+        .floating-leaderboard-btn:focus .icon {
+            opacity: 0; /* Hide Rupee sign on hover */
+        }
+
+        .floating-leaderboard-btn .text {
+            /* Hides the text initially and then makes it visible on hover */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            position: absolute; /* Position absolute to overlay on expand */
+        }
+        
+        .floating-leaderboard-btn:hover .text,
+        .floating-leaderboard-btn:focus .text {
+            opacity: 1;
+            position: relative;
+            transform: translateX(0); /* Ensure text is in flow when visible */
+        }
+        
+        /* Adjustments for the text display within the FAB */
+        .floating-leaderboard-btn {
+            text-align: center;
+        }
+        .floating-leaderboard-btn .icon {
+            line-height: 1; /* Center the rupee sign vertically */
+        }
+        
         /* Stats Section */
         .stats {
             padding: 5rem 5%;
@@ -389,32 +457,13 @@
             color: #FFD700;
         }
         
-        /* New styles for the Leaderboard button container */
+        /* New styles for the Leaderboard button container (now just the title container) */
         .portfolio-title-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start; /* Aligned left since the button is gone */
             align-items: center;
             margin-bottom: 1.5rem;
         }
-
-        .leaderboard-button {
-            background: none;
-            border: 1px solid rgba(255, 215, 0, 0.5);
-            color: #FFD700;
-            padding: 8px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .leaderboard-button:hover {
-            background: rgba(255, 215, 0, 0.1);
-            color: #FFA500;
-        }
-
 
         .balance-grid {
             display: grid;
@@ -687,6 +736,30 @@
             .balance-item:last-child {
                 margin-top: 1rem;
             }
+            
+            /* Mobile-specific fix for button/title wrapping */
+            .portfolio-title-container {
+                /* Since the leaderboard button is removed, we keep this simple */
+                justify-content: flex-start; 
+                flex-direction: row; 
+            }
+            
+            .trades-actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: nowrap; /* Ensure they stay on the same line */
+                margin-bottom: 1rem;
+            }
+            
+            .trades-actions .view-all-button {
+                font-size: 0.8rem; /* Smaller font for better fit */
+                padding: 4px 8px;
+            }
+
+            .portfolio-header h3 {
+                font-size: 1.6rem; /* Smaller title size for mobile */
+            }
         }
 
         /* Scroll animations */
@@ -815,6 +888,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            /* Added flex-wrap for mobile responsiveness */
+            flex-wrap: wrap; 
         }
 
         .trades-actions .view-all-button {
@@ -885,6 +960,12 @@
             <a href="https://wa.me/919359361016?text=I%20want%20to%20Invest" class="cta-button">Start Your Journey</a>
         </div>
     </section>
+    
+    <!-- Floating Leaderboard Button (Visible on all screen sizes now for easy testing) -->
+    <a href="#leaderboard-page" class="floating-leaderboard-btn">
+        <span class="icon">₹</span>
+        <span class="text">View Leaderboard</span>
+    </a>
 
     <!-- Stats Section -->
     <section class="stats fade-in">
@@ -913,15 +994,14 @@
         <h2 class="section-title">Live Portfolio Overview</h2>
         <div class="portfolio-container">
             <div class="portfolio-card main-balance">
-                <!-- NEW CONTAINER FOR TITLE AND LEADERBOARD BUTTON -->
+                <!-- SIMPLE HEADER (Leaderboard button is now floating) -->
                 <div class="portfolio-title-container">
                     <div class="portfolio-header" style="margin-bottom: 0;">
                         <div class="portfolio-icon">💼</div>
                         <h3>Total Portfolio Value</h3>
                     </div>
-                    <!-- LEADERBOARD BUTTON -->
-<a href="leaderboard.html" class="leaderboard-button">View Leaderboard</a>
-<!-- END NEW CONTAINER -->
+                </div>
+                <!-- END NEW CONTAINER -->
 
                 <div class="balance-grid">
                     <div class="balance-item">
@@ -968,6 +1048,7 @@
                         <div class="portfolio-icon">⚡️</div>
                         <h3>Today's Trades</h3>
                     </div>
+                    <!-- This button is now forced onto one line with the title on mobile -->
                     <button class="view-all-button" id="seeAllTradesBtn">See All Trades</button>
                 </div>
                 
