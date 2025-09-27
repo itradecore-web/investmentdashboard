@@ -61,6 +61,7 @@
             padding: 1rem 5%;
             max-width: 1400px;
             margin: 0 auto;
+            position: relative; /* Needed for positioning the settings panel */
         }
 
         .logo {
@@ -126,6 +127,11 @@
             width: 100%;
         }
         
+        /* New Pinned User Settings Panel Styles */
+        .profile-container {
+            position: relative;
+        }
+
         #profileIcon {
             width: 40px;
             height: 40px;
@@ -137,6 +143,8 @@
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 1001;
         }
         
         #profileIcon:hover {
@@ -149,6 +157,94 @@
             width: 24px;
             height: 24px;
         }
+
+        .settings-popup {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 280px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #FFD700;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeInDown 0.3s ease-out;
+            backdrop-filter: blur(8px);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .settings-popup h4 {
+            color: #FFD700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: #1a1a1a;
+            color: #ffffff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .settings-input:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .settings-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        #pinIdButton {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000000;
+        }
+        
+        #pinIdButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
+        }
+
+        #unpinIdButton {
+            background: #333333;
+            color: #ffffff;
+            border: 1px solid #555555;
+        }
+        
+        #unpinIdButton:hover {
+            background: #555555;
+        }
+
+        .current-pinned-id {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
 
         /* Hero Section for Portfolio Page */
         .portfolio-hero {
@@ -792,7 +888,7 @@
             transition: all 0.3s ease;
         }
 
-        .leaderboard-table tbody tr:hover {
+        .leaderboard-table tbody tr:hover:not(.pinned-row) {
             background: rgba(255, 215, 0, 0.05);
             transform: translateX(5px);
         }
@@ -802,6 +898,21 @@
             transform: translateX(10px);
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
             animation: highlight-pulse 2s ease-in-out;
+        }
+        
+        /* New Pinned Row Style */
+        .pinned-row {
+            background: rgba(255, 215, 0, 0.1) !important;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            order: -1; /* Ensure it stays at the top of the flex container (tbody) */
+        }
+        
+        .pinned-row .table-rank {
+            /* Kept style for rank cell when pinned, but removed the 'P' */
+            color: #FFD700;
+            background: none;
+            font-size: 1.5rem;
         }
 
         @keyframes highlight-pulse {
@@ -843,7 +954,7 @@
 
         .member-info h4 {
             color: #ffffff;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0;
             font-size: 1.1rem;
         }
 
@@ -1035,6 +1146,11 @@
             .member-info h4 {
                 margin-bottom: 0; /* Remove bottom margin if p tag below it is removed */
             }
+            
+            .settings-popup {
+                right: 5%; /* Adjust for mobile padding */
+                left: auto;
+            }
         }
 
         /* Scroll animations */
@@ -1062,7 +1178,6 @@
                 <div class="member-popup-avatar" id="popupAvatar"></div>
                 <div class="member-popup-info">
                     <h2 id="popupMemberName"></h2>
-                    <!-- Removed: <p id="popupMemberType"></p> -->
                     <p id="popupMemberRank"></p>
                 </div>
             </div>
@@ -1132,10 +1247,27 @@
                 <li><a href="#leaderboard">Leaderboard</a></li>
                 <li><a href="#stats">Statistics</a></li>
             </ul>
-            <div id="profileIcon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
-                </svg>
+            
+            <div class="profile-container">
+                <!-- Profile Icon to toggle settings -->
+                <div id="profileIcon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
+                    </svg>
+                </div>
+                
+                <!-- Pinned User Settings Popup -->
+                <div id="settingsPopup" class="settings-popup">
+                    <h4>Pin Your Portfolio</h4>
+                    <p class="current-pinned-id">Pinned ID: <strong id="pinnedUserIdDisplay">None</strong></p>
+                    
+                    <input type="text" id="pinIdInput" class="settings-input" placeholder="Enter your ID (e.g., AB01)" maxlength="4">
+                    
+                    <div class="settings-actions">
+                        <button id="pinIdButton">Pin ID</button>
+                        <button id="unpinIdButton">Unpin ID</button>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
@@ -1161,7 +1293,7 @@
         <!-- Total Returns (Lakhs) card removed -->
         <div class="summary-card">
             <div class="summary-number" data-target="9.0">0</div>
-            <div class="summary-label">% Average Returns</div>
+            <div class="summary-label">% Average Returns (N/A)</div>
         </div>
     </section>
 
@@ -1325,10 +1457,7 @@
     <script>
         // --- Data Source (Type and Full names removed for privacy) ---
         
-        // This array now holds the core investment and return data, using numbers for easier calculation.
-        // It maintains the 9 members totaling 5,00,000 invested capital.
         let rawMemberData = [
-            // { avatar, invested, returns, investmentDate, period }
             { avatar: "GB", invested: 100000, returns: 4000, investmentDate: "N/A", period: "N/A" },
             { avatar: "NB", invested: 100000, returns: 3760, investmentDate: "N/A", period: "N/A" },
             { avatar: "SB", invested: 100000, returns: 5640, investmentDate: "N/A", period: "N/A" },
@@ -1341,14 +1470,11 @@
         ];
 
         // --- Core logic to process, sort, and re-rank the data ---
-
-        // Step 1 & 2: Calculate metrics and process data
         let processedData = rawMemberData.map(member => {
             const invested = member.invested;
             const returns = member.returns;
             const current = invested + returns;
             const percentage = (returns / invested) * 100;
-
             return {
                 ...member,
                 current: current,
@@ -1356,17 +1482,13 @@
             };
         });
 
-        // Step 3: Sort the data (Primary: % descending, Secondary: Invested descending)
         processedData.sort((a, b) => {
-            // Primary sort: Percentage descending (highest performer is Rank 1)
             if (b.percentage !== a.percentage) {
                 return b.percentage - a.percentage;
             }
-            // Secondary sort (for ties): Invested descending (higher invested wins tie)
             return b.invested - a.invested;
         });
 
-        // Step 4: Reassign Ranks (1 to 9)
         processedData = processedData.map((member, index) => {
             return {
                 ...member,
@@ -1374,7 +1496,6 @@
             };
         });
 
-        // Helper to format currency/numbers for display
         function formatNumber(num) {
             return num.toLocaleString('en-IN', {
                 minimumFractionDigits: 0,
@@ -1382,7 +1503,6 @@
             });
         }
         
-        // --- Core logic to generate unique numbered initials (e.g., GB01, AB02) ---
         function generateUniqueAvatars(data) {
             const initialsCount = {};
             return data.map(member => {
@@ -1401,9 +1521,7 @@
                 return {
                     ...member,
                     baseAvatar: baseInitials, 
-                    avatar: uniqueAvatar, // e.g., 'GB01'
-                    
-                    // Format numbers for display in the UI
+                    avatar: uniqueAvatar, 
                     invested: formatNumber(member.invested),
                     current: formatNumber(member.current),
                     returns: formatNumber(member.returns),
@@ -1412,52 +1530,149 @@
             });
         }
         
-        // --- Custom logic to apply user-specified dates based on final unique IDs ---
         function applyCustomDates(data) {
-            // Mapping provided by the user (assuming AD01 is the final member)
-            // Note: The previous request used NI02 which I mapped to AD01 based on 9 total members. 
             const dateUpdates = {
-                "AB01": "Sep 5, 2024", // Rank 1
-                "SB01": "Sep 12, 2024", // Rank 2
-                "GB01": "Sep 15, 2024", // Rank 3
-                "NB01": "Sep 19, 2024", // Rank 4
-                "AB02": "Sep 25, 2024", // Rank 5
-                "SD01": "Sep 25, 2024", // Rank 6
-                "AB03": "Sep 25, 2024", // Rank 7
-                "NI01": "Sep 25, 2024", // Rank 8
-                "AD01": "Sep 25, 2024" // Rank 9 (Used AD01 instead of NI02 for consistency)
+                "AB01": "Sep 5, 2024", 
+                "SB01": "Sep 12, 2024", 
+                "GB01": "Sep 15, 2024", 
+                "NB01": "Sep 19, 2024", 
+                "AB02": "Sep 25, 2024", 
+                "SD01": "Sep 25, 2024", 
+                "AB03": "Sep 25, 2024", 
+                "NI01": "Sep 25, 2024", 
+                "AD01": "Sep 25, 2024" 
             };
 
             return data.map(member => {
                 if (dateUpdates[member.avatar]) {
-                    // Update the date based on the final unique ID
                     member.investmentDate = dateUpdates[member.avatar];
-                    // Reset period to N/A since exact period calculation isn't provided
                     member.period = 'N/A'; 
                 }
                 return member;
             });
         }
 
-        // Final data array for the UI
         let memberData = generateUniqueAvatars(processedData);
-        // Apply the new dates here, using the generated unique IDs for lookup
         memberData = applyCustomDates(memberData); 
         
-        // --- Member Profile Popup Functions (Now searches by unique ID) ---
+        // --- Pinned User State ---
+        let currentPinnedId = null;
+
+        // --- Utility Functions ---
+        
+        function updatePinnedIdDisplay(id) {
+            document.getElementById('pinnedUserIdDisplay').textContent = id || 'None';
+            document.getElementById('pinIdInput').value = id || '';
+        }
+
+        function loadPinnedId() {
+            currentPinnedId = localStorage.getItem('pinnedMemberId');
+            updatePinnedIdDisplay(currentPinnedId);
+            return currentPinnedId;
+        }
+
+        function savePinnedId() {
+            const inputElement = document.getElementById('pinIdInput');
+            let newId = inputElement.value.trim().toUpperCase();
+
+            const memberExists = memberData.some(m => m.avatar === newId);
+
+            if (memberExists) {
+                localStorage.setItem('pinnedMemberId', newId);
+                currentPinnedId = newId;
+                updatePinnedIdDisplay(currentPinnedId);
+                generateLeaderboardTable(currentPinnedId);
+                toggleSettingsPopup(false);
+            } else {
+                alert('Invalid Member ID. Please enter a valid ID (e.g., AB01).');
+            }
+        }
+
+        function unpinId() {
+            localStorage.removeItem('pinnedMemberId');
+            currentPinnedId = null;
+            updatePinnedIdDisplay(null);
+            generateLeaderboardTable(null);
+            toggleSettingsPopup(false);
+        }
+        
+        function toggleSettingsPopup(state) {
+            const popup = document.getElementById('settingsPopup');
+            if (state === true) {
+                popup.style.display = 'flex';
+                document.getElementById('pinIdInput').focus();
+            } else if (state === false) {
+                popup.style.display = 'none';
+            } else {
+                popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+                if (popup.style.display === 'flex') {
+                    document.getElementById('pinIdInput').focus();
+                }
+            }
+        }
+
+        function renderTableRow(member, container, isPinned) {
+            const isPositive = parseFloat(member.percentage) >= 0;
+            const sign = isPositive ? '+' : '';
+            const returnsClass = isPositive ? 'returns-positive' : 'returns-negative';
+            
+            // FIX: Use the actual rank (member.rank) instead of 'P' when pinned.
+            const rankDisplay = member.rank; 
+
+            const row = document.createElement('tr');
+            // Keep the 'pinned-row' class for visual highlighting
+            row.className = isPinned ? 'pinned-row' : ''; 
+            row.innerHTML = `
+                <td class="table-rank">${rankDisplay}</td>
+                <td class="table-member">
+                    <div class="table-avatar">${member.baseAvatar}</div>
+                    <div class="member-info">
+                        <h4 class="member-name-clickable" onclick="showMemberPopup('${member.avatar}')">${member.avatar}</h4>
+                    </div>
+                </td>
+                <td class="table-amount">₹${member.invested}</td>
+                <td class="table-amount">₹${member.current}</td>
+                <td class="table-returns ${returnsClass}">${sign}₹${member.returns}</td>
+                <td class="table-percentage ${returnsClass}">${sign}${member.percentage}%</td>
+            `;
+            container.appendChild(row);
+        }
+
+        function generateLeaderboardTable(pinnedId) {
+            const tableBody = document.getElementById('leaderboard-table-body');
+            tableBody.innerHTML = ''; 
+
+            let pinnedMember = null;
+            const remainingMembers = [];
+
+            memberData.forEach(member => {
+                if (member.avatar === pinnedId) {
+                    pinnedMember = member;
+                } else {
+                    remainingMembers.push(member);
+                }
+            });
+
+            if (pinnedMember) {
+                renderTableRow(pinnedMember, tableBody, true); 
+            }
+
+            remainingMembers.forEach(member => {
+                renderTableRow(member, tableBody, false);
+            });
+        }
+
         function showMemberPopup(memberId) {
-            // Find member by the unique ID (e.g., 'GB01')
             const member = memberData.find(m => m.avatar === memberId);
             if (!member) return;
 
-            // Update popup content: Use BASE AVATAR for the popup circle
             document.getElementById('popupAvatar').textContent = member.baseAvatar; 
-            // Display the unique ID in the pop-up header.
             document.getElementById('popupMemberName').textContent = member.avatar; 
             
-            // Removed: document.getElementById('popupMemberType').textContent = member.type;
+            // Show original rank for everyone
+            const rankText = `Rank #${member.rank}`;
             
-            document.getElementById('popupMemberRank').textContent = `Rank #${member.rank}`;
+            document.getElementById('popupMemberRank').textContent = rankText;
             
             document.getElementById('popupInvestedAmount').textContent = `₹${member.invested}`;
             document.getElementById('popupCurrentValue').textContent = `₹${member.current}`;
@@ -1478,15 +1693,42 @@
             dateEl.textContent = member.investmentDate || 'N/A';
             document.getElementById('popupInvestmentPeriod').textContent = member.period || 'N/A';
 
-            // Show popup
             document.getElementById('memberProfilePopup').style.display = 'flex';
         }
 
         function closeMemberPopup() {
             document.getElementById('memberProfilePopup').style.display = 'none';
         }
+        
+        function createParticles() {
+            const container = document.getElementById('bgAnimation');
+            const particleCount = 50;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+        
+        function updatePodiumInitials() {
+            if (memberData.length >= 3) {
+                document.getElementById('podium-avatar-1').textContent = memberData[0].baseAvatar;
+                document.getElementById('podium-name-1').textContent = memberData[0].avatar;
+                
+                document.getElementById('podium-avatar-2').textContent = memberData[1].baseAvatar;
+                document.getElementById('podium-name-2').textContent = memberData[1].avatar;
 
-        // --- Search functionality (Now only searches initials/ID) ---
+                document.getElementById('podium-avatar-3').textContent = memberData[2].baseAvatar;
+                document.getElementById('podium-name-3').textContent = memberData[2].avatar;
+            }
+        }
+
         function initializeSearch() {
             const searchInput = document.getElementById('memberSearch');
             const clearButton = document.getElementById('clearSearch');
@@ -1511,7 +1753,6 @@
                 searchInput.focus();
             });
 
-            // Hide search results when clicking outside
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.search-container')) {
                     searchResults.style.display = 'none';
@@ -1522,7 +1763,6 @@
         function performSearch(query) {
             const searchResults = document.getElementById('searchResults');
             const results = memberData.filter(member => 
-                // Search only checks base initials and unique ID
                 member.baseAvatar.toLowerCase().includes(query) ||
                 member.avatar.toLowerCase().includes(query)
             );
@@ -1548,8 +1788,8 @@
                         <div class="result-header">
                             <div class="result-avatar">${member.baseAvatar}</div>
                             <div class="result-info">
-                                <h4>${member.avatar}</h4> <!-- Showing only the unique ID (e.g., GB01) -->
-                                <p class="result-rank">Rank #${member.rank}</p> <!-- Removed member type -->
+                                <h4>${member.avatar}</h4>
+                                <p class="result-rank">Rank #${member.rank}</p>
                             </div>
                         </div>
                         <div class="result-stats">
@@ -1586,6 +1826,8 @@
             const tableRows = document.querySelectorAll('#leaderboard-table-body tr');
             const targetRow = Array.from(tableRows).find(row => {
                 const rankCell = row.querySelector('.table-rank');
+                
+                // Find the member by their original rank, which is now always displayed.
                 return rankCell && parseInt(rankCell.textContent) === rank;
             });
 
@@ -1602,55 +1844,7 @@
                 }, 3000);
             }
         }
-
-        // --- Dynamic Table Generation (Now passes unique ID to popup) ---
-        function generateLeaderboardTable() {
-            const tableBody = document.getElementById('leaderboard-table-body');
-            tableBody.innerHTML = ''; // Clear existing (hardcoded) content
-
-            memberData.forEach(member => {
-                const isPositive = parseFloat(member.percentage) >= 0;
-                const sign = isPositive ? '+' : '';
-                const returnsClass = isPositive ? 'returns-positive' : 'returns-negative';
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="table-rank">${member.rank}</td>
-                    <td class="table-member">
-                        <div class="table-avatar">${member.baseAvatar}</div>
-                        <div class="member-info">
-                            <h4 class="member-name-clickable" onclick="showMemberPopup('${member.avatar}')">${member.avatar}</h4>
-                            <!-- Removed: <p>${member.type}</p> -->
-                        </div>
-                    </td>
-                    <td class="table-amount">₹${member.invested}</td>
-                    <td class="table-amount">₹${member.current}</td>
-                    <td class="table-returns ${returnsClass}">${sign}₹${member.returns}</td>
-                    <td class="table-percentage ${returnsClass}">${sign}${member.percentage}%</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // --- Animated background particles ---
-        function createParticles() {
-            const container = document.getElementById('bgAnimation');
-            const particleCount = 50;
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.width = Math.random() * 4 + 2 + 'px';
-                particle.style.height = particle.style.width;
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
-                container.appendChild(particle);
-            }
-        }
-
-        // --- Counter animation ---
+        
         function animateCounters() {
             const counters = document.querySelectorAll('.summary-number[data-target]');
             
@@ -1659,7 +1853,6 @@
                 const increment = target / 100;
                 let current = 0;
                 
-                // Clear any existing interval to prevent overlapping animations
                 if (counter.timer) clearInterval(counter.timer);
 
                 counter.timer = setInterval(() => {
@@ -1669,14 +1862,12 @@
                         clearInterval(counter.timer);
                     }
                     
-                    // Format based on target value (0 decimal for total members/capital, 2 for returns/percentage)
                     const decimals = target % 1 !== 0 ? 2 : 0;
                     counter.textContent = current.toFixed(decimals);
                 }, 20);
             });
         }
-
-        // --- Scroll animations (FIXED GLITCH: window.innerWidth to window.innerHeight) ---
+        
         function handleScrollAnimations() {
             const elements = document.querySelectorAll('.fade-in');
             
@@ -1684,78 +1875,72 @@
                 const elementTop = element.getBoundingClientRect().top;
                 const elementVisible = 150;
                 
-                // FIX: Used window.innerHeight for correct scroll calculation
                 if (elementTop < window.innerHeight - elementVisible) {
                     element.classList.add('visible');
                 }
             });
         }
         
-        // --- Podium Update function to set the unique IDs ---
-        function updatePodiumInitials() {
-            // Rank 1
-            document.getElementById('podium-avatar-1').textContent = memberData[0].baseAvatar;
-            document.getElementById('podium-name-1').textContent = memberData[0].avatar;
-            
-            // Rank 2
-            document.getElementById('podium-avatar-2').textContent = memberData[1].baseAvatar;
-            document.getElementById('podium-name-2').textContent = memberData[1].avatar;
-
-            // Rank 3
-            document.getElementById('podium-avatar-3').textContent = memberData[2].baseAvatar;
-            document.getElementById('podium-name-3').textContent = memberData[2].avatar;
-        }
 
         // --- Initialization and Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Load pinned ID and render table based on it
+            const initialPinnedId = loadPinnedId();
+            generateLeaderboardTable(initialPinnedId); // This should now run successfully
+
             createParticles();
             initializeSearch();
-            generateLeaderboardTable(); // Generate the table dynamically
-            updatePodiumInitials(); // Update the top 3 with the new IDs
+            updatePodiumInitials();
 
-            // Profile icon functionality (placeholder)
+            // Settings/Profile Icon functionality
             const profileIcon = document.getElementById('profileIcon');
-            profileIcon.addEventListener('click', () => {
-                // IMPORTANT: Removed alert() and replaced with console log as per best practices.
-                console.log('Profile functionality coming soon!');
+            const settingsPopup = document.getElementById('settingsPopup');
+            
+            profileIcon.addEventListener('click', () => toggleSettingsPopup());
+            
+            document.getElementById('pinIdButton').addEventListener('click', savePinnedId);
+            document.getElementById('unpinIdButton').addEventListener('click', unpinId);
+            
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.profile-container') && settingsPopup.style.display === 'flex') {
+                    toggleSettingsPopup(false);
+                }
             });
 
-            // Member popup close functionality
             const closeMemberPopupBtn = document.getElementById('closeMemberPopup');
             const memberPopupOverlay = document.getElementById('memberProfilePopup');
             
             closeMemberPopupBtn.addEventListener('click', closeMemberPopup);
             
-            // Close popup when clicking outside
             memberPopupOverlay.addEventListener('click', function(e) {
                 if (e.target === memberPopupOverlay) {
                     closeMemberPopup();
                 }
             });
             
-            // Close popup with Escape key
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && memberPopupOverlay.style.display === 'flex') {
-                    closeMemberPopup();
+                if (e.key === 'Escape') {
+                    if (memberPopupOverlay.style.display === 'flex') {
+                        closeMemberPopup();
+                    } else if (settingsPopup.style.display === 'flex') {
+                        toggleSettingsPopup(false);
+                    }
                 }
             });
             
-            // Trigger counter animation when stats section is visible
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounters();
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.5 }); // Added threshold for better visibility trigger
-            
             const statsSection = document.querySelector('.stats-summary');
             if (statsSection) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            animateCounters();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 }); 
                 observer.observe(statsSection);
             }
             
-            // Initial scroll animation check
             handleScrollAnimations();
         });
 
@@ -1798,6 +1983,7 @@
                 particle.style.transform = `translate(${x}px, ${y}px)`;
             });
         });
+        
     </script>
 </body>
 </html>
