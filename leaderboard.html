@@ -1317,39 +1317,12 @@
             
             <!-- Top 3 Podium (UPDATED DATA) -->
             <div class="podium">
-                <!-- 1st Place - AB01 -->
+                <!-- 1st Place - SB01 (Highest Returns) -->
                 <div class="podium-item first">
-                    <div class="podium-card" onclick="showMemberPopup('AB01')">
-                        <div class="rank-badge first">1</div>
-                        <div class="member-avatar" id="podium-avatar-1">AB</div>
-                        <div class="member-name member-name-clickable" id="podium-name-1">AB01</div>
-                        <div class="member-stats">
-                            <div class="stat-row">
-                                <span class="stat-label">Invested:</span>
-                                <span class="stat-value">₹60,000</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Current:</span>
-                                <span class="stat-value">₹64,700</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Returns:</span>
-                                <span class="stat-value returns-positive">+₹4,700</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Growth:</span>
-                                <span class="stat-value returns-positive">+7.83%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2nd Place - SB01 -->
-                <div class="podium-item second">
                     <div class="podium-card" onclick="showMemberPopup('SB01')">
-                        <div class="rank-badge second">2</div>
-                        <div class="member-avatar" id="podium-avatar-2">SB</div>
-                        <div class="member-name member-name-clickable" id="podium-name-2">SB01</div>
+                        <div class="rank-badge first">1</div>
+                        <div class="member-avatar" id="podium-avatar-1">SB</div>
+                        <div class="member-name member-name-clickable" id="podium-name-1">SB01</div>
                         <div class="member-stats">
                             <div class="stat-row">
                                 <span class="stat-label">Invested:</span>
@@ -1366,6 +1339,33 @@
                             <div class="stat-row">
                                 <span class="stat-label">Growth:</span>
                                 <span class="stat-value returns-positive">+5.64%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2nd Place - AB01 -->
+                <div class="podium-item second">
+                    <div class="podium-card" onclick="showMemberPopup('AB01')">
+                        <div class="rank-badge second">2</div>
+                        <div class="member-avatar" id="podium-avatar-2">AB</div>
+                        <div class="member-name member-name-clickable" id="podium-name-2">AB01</div>
+                        <div class="member-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">Invested:</span>
+                                <span class="stat-value">₹60,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Current:</span>
+                                <span class="stat-value">₹64,700</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Returns:</span>
+                                <span class="stat-value returns-positive">+₹4,700</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Growth:</span>
+                                <span class="stat-value returns-positive">+7.83%</span>
                             </div>
                         </div>
                     </div>
@@ -1482,9 +1482,10 @@
             };
         });
 
+        // FIX: Sorting by absolute returns (profit) first, then by invested amount as a tie-breaker
         processedData.sort((a, b) => {
-            if (b.percentage !== a.percentage) {
-                return b.percentage - a.percentage;
+            if (b.returns !== a.returns) {
+                return b.returns - a.returns;
             }
             return b.invested - a.invested;
         });
@@ -1531,6 +1532,7 @@
         }
         
         function applyCustomDates(data) {
+            // UPDATED: Changed all years from 2024 to 2025
             const dateUpdates = {
                 "AB01": "Sep 5, 2025", 
                 "SB01": "Sep 12, 2025", 
@@ -1616,7 +1618,7 @@
             const sign = isPositive ? '+' : '';
             const returnsClass = isPositive ? 'returns-positive' : 'returns-negative';
             
-            // FIX: Use the actual rank (member.rank) instead of 'P' when pinned.
+            // Displays actual rank for pinned row
             const rankDisplay = member.rank; 
 
             const row = document.createElement('tr');
@@ -1718,12 +1720,16 @@
         
         function updatePodiumInitials() {
             if (memberData.length >= 3) {
+                // Ranks are now determined by returns, so we use the first 3 members of the sorted list
+                // R1: SB01
                 document.getElementById('podium-avatar-1').textContent = memberData[0].baseAvatar;
                 document.getElementById('podium-name-1').textContent = memberData[0].avatar;
                 
+                // R2: AB01
                 document.getElementById('podium-avatar-2').textContent = memberData[1].baseAvatar;
                 document.getElementById('podium-name-2').textContent = memberData[1].avatar;
 
+                // R3: GB01
                 document.getElementById('podium-avatar-3').textContent = memberData[2].baseAvatar;
                 document.getElementById('podium-name-3').textContent = memberData[2].avatar;
             }
