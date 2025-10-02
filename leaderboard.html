@@ -15,7 +15,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
             color: #ffffff;
-            /* FIX: Removed global overflow-x: hidden to allow table scrollbar to work if needed */
             line-height: 1.6;
         }
 
@@ -1038,6 +1037,38 @@
             margin-bottom: 0;
             font-size: 1.1rem;
         }
+        
+        /* New Mobile Styling: Container for stacked metrics */
+        .mobile-metrics {
+            display: none; /* Hidden on desktop */
+            flex-direction: column;
+            gap: 0.3rem;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-metric-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            /* FIX: Ensure content within the row uses all available space */
+            width: 100%; 
+        }
+
+        .mobile-label {
+            color: rgba(255, 255, 255, 0.6);
+            /* FIX: Let the label take the necessary space, but allow growth for values */
+            width: 55%; 
+        }
+        
+        /* FIX: Ensure value is pushed to the right edge */
+        .mobile-metric-row span:last-child {
+            text-align: right;
+            /* Allow it to take the remaining space */
+            flex-grow: 1; 
+        }
+
 
         .member-name-clickable {
             cursor: pointer;
@@ -1263,31 +1294,115 @@
             
             /* Table Fixes */
             .leaderboard-table-container {
+                /* Remove horizontal scroll */
+                overflow-x: hidden; 
                 padding: 1rem;
             }
             
-            /* Allow horizontal scrolling on smaller screens if content is too wide */
-            .leaderboard-table-container {
-                overflow-x: scroll;
-            }
-
-            .leaderboard-table th, .leaderboard-table td {
-                padding: 1rem 0.5rem;
-                font-size: 0.9rem;
-            }
-
             .leaderboard-table {
-                /* Ensure table has minimum width to contain content */
-                min-width: 650px; /* Slightly wider to accommodate content better */
+                /* Set width to auto to fill container */
+                width: 100%;
+                table-layout: auto; 
+                min-width: unset; 
             }
 
+            /* 1. Hide the desktop column headers */
+            .leaderboard-table thead {
+                display: none;
+            }
+
+            /* 2. Make each row behave like a block element */
+            .leaderboard-table tr {
+                display: block;
+                border: 1px solid rgba(255, 215, 0, 0.2);
+                border-radius: 10px;
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+            
+            /* 3. Make Rank cell a block, taking full width */
+            .leaderboard-table tr td:nth-child(1) {
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 0;
+            }
+            /* FIX: Ensure rank text is aligned properly */
+            .leaderboard-table tr td:nth-child(1) .table-rank {
+                display: inline-block;
+                margin-bottom: 0.5rem;
+            }
+
+
+            /* 4. Adjust Member cell to hold the main content */
+            .leaderboard-table tr td:nth-child(2) {
+                display: flex; /* Use flex to align avatar and name horizontally */
+                align-items: flex-start; /* Align avatar/info to the top */
+                justify-content: flex-start; /* Aligned to start */
+                width: 100%;
+                padding: 0;
+                border-bottom: none; /* Remove redundant border */
+                flex-wrap: wrap; /* Allow metrics to wrap below */
+            }
+            
+            /* 5. Hide the remaining metric cells (Invested, Current, Returns, Growth) */
+            .leaderboard-table tr td:nth-child(3),
+            .leaderboard-table tr td:nth-child(4),
+            .leaderboard-table tr td:nth-child(5),
+            .leaderboard-table tr td:nth-child(6) {
+                display: none; 
+            }
+            
+            /* 6. Show the stacked mobile metrics container */
+            .table-member .mobile-metrics {
+                display: flex; 
+                width: 100%;
+                padding-top: 0.5rem;
+                /* Reset margin to base for better calculation */
+                margin-left: 0; 
+                /* Add padding equal to avatar width + gap to indent metrics */
+                padding-left: calc(40px + 1rem); 
+            }
+
+            /* Restyle Member Info section */
+            .table-member {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                width: 100%;
+                padding: 0;
+            }
+
+            .table-avatar {
+                width: 40px; /* Reduced size */
+                height: 40px; /* Reduced size */
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+            
+            .member-info {
+                flex-grow: 1;
+            }
+            
+            .member-info h4 {
+                font-size: 1.1rem; /* Slightly reduced font size */
+            }
+            
+            .table-rank {
+                font-size: 1.5rem;
+                color: #FFD700;
+                margin-bottom: 0.5rem;
+            }
+
+            /* FINAL MOBILE STATS SIZE REDUCTION */
             .portfolio-overview {
+                max-width: 90%; /* Ensure it fits widely */
                 margin: 2rem auto;
-                padding: 1.5rem 1rem; /* Adjusted mobile padding */
+                padding: 1.5rem 1rem;
             }
             
             .overview-title {
-                font-size: 1.5rem; /* Further reduced title on mobile */
+                font-size: 1.5rem;
                 margin-bottom: 1rem;
             }
             
@@ -1303,7 +1418,7 @@
             }
             
             .stat-value-large {
-                font-size: 2rem; /* Further reduced large stats on mobile */
+                font-size: 2rem;
             }
 
             .footer-content {
@@ -1893,12 +2008,38 @@
             const row = document.createElement('tr');
             // Keep the 'pinned-row' class for visual highlighting
             row.className = isPinned ? 'pinned-row' : ''; 
+            
+            // Build the dynamic mobile metrics container here
+            const mobileMetricsHTML = `
+                <div class="mobile-metrics">
+                    <div class="mobile-metric-row">
+                        <span class="mobile-label">Invested Amount:</span>
+                        <span class="table-amount">₹${member.invested}</span>
+                    </div>
+                    <div class="mobile-metric-row">
+                        <span class="mobile-label">Current Value:</span>
+                        <span class="table-amount">₹${member.current}</span>
+                    </div>
+                    <div class="mobile-metric-row">
+                        <span class="mobile-label">Total Returns:</span>
+                        <span class="table-returns ${returnsClass}">${sign}₹${member.returns}</span>
+                    </div>
+                    <div class="mobile-metric-row">
+                        <span class="mobile-label">Growth %:</span>
+                        <span class="table-percentage ${returnsClass}">${sign}${member.percentage}%</span>
+                    </div>
+                </div>
+            `;
+
+
             row.innerHTML = `
                 <td class="table-rank">${rankDisplay}</td>
                 <td class="table-member">
                     <div class="table-avatar">${member.baseAvatar}</div>
                     <div class="member-info">
                         <h4 class="member-name-clickable" onclick="showMemberPopup('${member.avatar}')">${member.avatar}</h4>
+                        <!-- Mobile metrics shown below ID on small screens -->
+                        ${mobileMetricsHTML}
                     </div>
                 </td>
                 <td class="table-amount">₹${member.invested}</td>
