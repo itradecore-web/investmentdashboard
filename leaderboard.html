@@ -670,7 +670,10 @@
                 padding: 1rem;
             }
         }
-            padding: 5rem 5%;
+        
+        /* Main section padding */
+        .leaderboard-section-wrapper {
+            padding: 5rem 5% 8rem 5%; /* Re-added vertical padding */
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
             position: relative;
         }
@@ -862,13 +865,15 @@
             padding: 2rem;
             backdrop-filter: blur(15px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            overflow-x: auto;
+            /* Removed overflow-x: auto here to force fit */
+            overflow-x: auto; 
         }
 
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            table-layout: fixed; /* Added to help column sizing */
         }
 
         .leaderboard-table th {
@@ -880,13 +885,29 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
+            /* Explicitly define header widths */
+            width: 10%; 
         }
+
+        .leaderboard-table th:nth-child(2) { width: 20%; } /* Member */
+        .leaderboard-table th:nth-child(3), .leaderboard-table th:nth-child(4) { width: 17.5%; } /* Invested/Current */
+        .leaderboard-table th:nth-child(5), .leaderboard-table th:nth-child(6) { width: 17.5%; } /* Returns/Growth */
+        .leaderboard-table th:nth-child(1) { width: 7.5%; text-align: center; } /* Rank */
+
 
         .leaderboard-table td {
             padding: 1.5rem 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
+            vertical-align: middle; 
+            /* FIX: Removed white-space: nowrap to allow content to wrap */
         }
+        
+        /* Center content in Rank cell */
+        .leaderboard-table td:nth-child(1) {
+             text-align: center;
+        }
+
 
         .leaderboard-table tbody tr:hover:not(.pinned-row) {
             background: rgba(255, 215, 0, 0.05);
@@ -909,7 +930,6 @@
         }
         
         .pinned-row .table-rank {
-            /* Kept style for rank cell when pinned, but removed the 'P' */
             color: #FFD700;
             background: none;
             font-size: 1.5rem;
@@ -929,7 +949,6 @@
             color: #FFD700;
             font-size: 1.2rem;
             text-align: center;
-            width: 60px;
         }
 
         .table-member {
@@ -1004,155 +1023,209 @@
             font-size: 1.1rem;
         }
 
-        /* Stats Summary */
-        .stats-summary {
-            display: grid;
-            /* Changed to 3 columns since Total Returns was removed */
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 2rem;
-            margin-bottom: 4rem;
-        }
-
-        .summary-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
+        /* Portfolio Overview Card (New Styles) */
+        .portfolio-overview {
+            max-width: 700px; /* Reduced max width */
+            margin: 0 auto; /* Removed top/bottom margins to fix layout issues */
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #FFD700;
+            border-radius: 20px; /* Slightly smaller border radius */
+            padding: 2rem 1.5rem; /* Reduced padding */
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.3); /* Reduced shadow */
             text-align: center;
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        /* Spacing correction for user card when visible */
+        #userStats {
+            /* Margin for the user portfolio when visible */
+            margin: 3rem auto 2rem auto; 
+            transition: all 0.3s ease; 
+        }
+        
+        #stats {
+             /* Margin for the global portfolio */
+            margin: 3rem auto 5rem auto; 
         }
 
-        .summary-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        /* Styling for the personalized user portfolio card */
+        #userPortfolioOverview {
+            border-color: #4ade80; /* Differentiate from global card */
+            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.3);
         }
 
-        .summary-card:hover::before {
-            opacity: 1;
+        #userPortfolioOverview .overview-title {
+            color: #4ade80;
+            font-size: 1.8rem;
         }
 
-        .summary-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+        #userPortfolioOverview .stat-value-large {
+            color: #4ade80;
+        }
+        
+        .overview-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Reduced gap */
+            font-size: 2rem; /* Reduced font size */
+            font-weight: 600;
+            color: #FFD700;
+            margin-bottom: 1.5rem; /* Reduced margin */
         }
 
-        .summary-number {
-            font-size: 2.5rem;
+        .overview-title svg {
+            width: 26px; /* Reduced SVG size */
+            height: 26px;
+            fill: #FFD700;
+        }
+
+        .overview-stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 1rem; /* Reduced margin */
+            position: relative;
+        }
+
+        .stat-block {
+            flex: 1;
+            text-align: center;
+            padding: 0 0.5rem; /* Reduced padding */
+        }
+
+        .stat-label {
+            font-size: 1rem; /* Reduced font size */
+            opacity: 0.8;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value-large {
+            font-size: 2.5rem; /* Reduced font size */
             font-weight: bold;
             color: #FFD700;
-            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        
+        .stat-divider {
+            height: 80px; /* Reduced height */
+            width: 2px;
+            background: rgba(255, 215, 0, 0.3);
+        }
+        
+        /* New line for the date in the user portfolio */
+        .invested-date-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
         }
 
-        .summary-label {
-            font-size: 1rem;
-            opacity: 0.9;
+
+        .returns-summary {
+            margin-top: 0.5rem; /* Reduced margin */
+            font-size: 1.1rem; /* Reduced font size */
+            font-weight: 600;
+            color: #4ade80; 
+            text-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
         }
 
-        /* Footer */
+        /* Footer Styles */
         footer {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 3rem 5%;
-            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            background: #000000;
+            padding: 4rem 5% 1rem 5%; /* Adjusted padding */
+            border-top: 2px solid rgba(255, 215, 0, 0.2);
         }
-
+        
         .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1400px;
+            margin: 0 auto 3rem auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
         }
-
+        
         .footer-section h3 {
             color: #FFD700;
             margin-bottom: 1rem;
+            font-size: 1.3rem;
         }
-
+        
         .footer-section p, .footer-section a {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
             transition: color 0.3s ease;
         }
-
+        
         .footer-section a:hover {
             color: #FFD700;
         }
 
         .footer-bottom {
             text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 215, 0, 0.1);
-            opacity: 0.6;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
         }
+
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .portfolio-hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .podium {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .podium-item {
-                order: initial !important;
-            }
-
-            .podium-item.first .podium-card {
-                transform: none;
-            }
-
-            .podium-item.first .podium-card:hover {
-                transform: translateY(-10px);
-            }
-
+            
             .leaderboard-table-container {
                 padding: 1rem;
             }
+            
+            /* Allow horizontal scrolling on smaller screens if content is too wide */
+            .leaderboard-table-container {
+                overflow-x: scroll;
+            }
 
-            .leaderboard-table th,
-            .leaderboard-table td {
+            .leaderboard-table th, .leaderboard-table td {
                 padding: 1rem 0.5rem;
                 font-size: 0.9rem;
             }
 
-            .table-member {
-                flex-direction: row; /* Keep horizontal for narrow view */
-                text-align: left;
-                gap: 0.5rem;
+            .leaderboard-table {
+                /* Ensure table has minimum width to contain content */
+                min-width: 600px;
+            }
+
+            .portfolio-overview {
+                margin: 2rem auto;
+                padding: 1.5rem 1rem; /* Adjusted mobile padding */
             }
             
-            /* Adjust spacing in table row when type is removed */
-            .member-info h4 {
-                margin-bottom: 0; /* Remove bottom margin if p tag below it is removed */
+            .overview-title {
+                font-size: 1.5rem; /* Further reduced title on mobile */
+                margin-bottom: 1rem;
             }
             
-            .settings-popup {
-                right: 5%; /* Adjust for mobile padding */
-                left: auto;
+            .overview-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stat-divider {
+                width: 80%;
+                height: 1px;
+                margin: 0.5rem auto;
+            }
+            
+            .stat-value-large {
+                font-size: 2rem; /* Further reduced large stats on mobile */
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
             }
         }
-
+        
         /* Scroll animations */
         .fade-in {
             opacity: 0;
@@ -1280,25 +1353,71 @@
         </div>
     </section>
 
-    <!-- Stats Summary (Updated to 3 columns and new values) -->
-    <section class="stats-summary fade-in" id="stats" style="padding: 3rem 5%;">
-        <div class="summary-card">
-            <div class="summary-number" data-target="9">0</div>
-            <div class="summary-label">Total Members</div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-number" data-target="5">0</div>
-            <div class="summary-label">Lakhs Total Capital</div>
-        </div>
-        <!-- Total Returns (Lakhs) card removed -->
-        <div class="summary-card">
-            <div class="summary-number" data-target="9.0">0</div>
-            <div class="summary-label">% Average Returns (N/A)</div>
+    <!-- START: Personalized User Portfolio Overview Card (Hidden by default) -->
+    <section class="fade-in" id="userStats" style="display: none;">
+        <div class="portfolio-overview">
+            <div class="overview-title" id="userOverviewTitle">
+                <!-- Title will be dynamically updated to "Your Portfolio: [ID]" -->
+            </div>
+            
+            <div class="overview-stats">
+                <div class="stat-block">
+                    <div class="stat-label">Invested Amount</div>
+                    <!-- Data attribute holds the raw number for animation -->
+                    <div class="stat-value-large" id="userInvestedAmountDisplay" data-value="0">0</div>
+                </div>
+                
+                <div class="stat-divider"></div>
+                
+                <div class="stat-block">
+                    <div class="stat-label">Current Value</div>
+                    <!-- Data attribute holds the raw number for animation -->
+                    <div class="stat-value-large" id="userCurrentValueDisplay" data-value="0">0</div>
+                </div>
+            </div>
+            
+            <div class="returns-summary" id="userReturnsSummaryDisplay">
+                <!-- Data will be inserted by JavaScript: +X.XX% (₹X,XXX) -->
+            </div>
+            <div class="invested-date-label" id="userInvestedDateDisplay">
+                <!-- Date will be inserted by JavaScript: Invested Since: Sep 5, 2025 -->
+            </div>
         </div>
     </section>
+    <!-- END: Personalized User Portfolio Overview Card -->
 
+
+    <!-- Portfolio Overview Card (Global Summary) -->
+    <section class="fade-in" id="stats">
+        <div class="portfolio-overview">
+            <div class="overview-title">
+                Live Portfolio Overview
+            </div>
+            
+            <div class="overview-stats">
+                <div class="stat-block">
+                    <div class="stat-label">Invested Amount</div>
+                    <!-- Data attribute holds the raw number for animation -->
+                    <div class="stat-value-large" id="investedAmountDisplay" data-value="1000000">0</div>
+                </div>
+                
+                <div class="stat-divider"></div>
+                
+                <div class="stat-block">
+                    <div class="stat-label">Current Value</div>
+                    <!-- Data attribute holds the raw number for animation -->
+                    <div class="stat-value-large" id="currentValueDisplay" data-value="1021280">0</div>
+                </div>
+            </div>
+            
+            <div class="returns-summary" id="returnsSummaryDisplay">
+                <!-- Data will be inserted by JavaScript: +2.13% (₹21,280) -->
+            </div>
+        </div>
+    </section>
+    
     <!-- Leaderboard Section -->
-    <section class="leaderboard-section fade-in" id="leaderboard">
+    <section class="leaderboard-section-wrapper">
         <div class="leaderboard-container">
             <h2 class="section-title">Top Performers</h2>
             
@@ -1317,7 +1436,7 @@
             
             <!-- Top 3 Podium (UPDATED DATA) -->
             <div class="podium">
-                <!-- 1st Place - SB01 (Highest Returns) -->
+                <!-- 1st Place - SB01 (Highest Returns: 5640) -->
                 <div class="podium-item first">
                     <div class="podium-card" onclick="showMemberPopup('SB01')">
                         <div class="rank-badge first">1</div>
@@ -1344,7 +1463,7 @@
                     </div>
                 </div>
 
-                <!-- 2nd Place - AB01 -->
+                <!-- 2nd Place - AB01 (Highest Returns: 4700) -->
                 <div class="podium-item second">
                     <div class="podium-card" onclick="showMemberPopup('AB01')">
                         <div class="rank-badge second">2</div>
@@ -1371,7 +1490,7 @@
                     </div>
                 </div>
 
-                <!-- 3rd Place - GB01 -->
+                <!-- 3rd Place - GB01 (Highest Returns: 4000) -->
                 <div class="podium-item third">
                     <div class="podium-card" onclick="showMemberPopup('GB01')">
                         <div class="rank-badge third">3</div>
@@ -1458,6 +1577,7 @@
         // --- Data Source (Type and Full names removed for privacy) ---
         
         let rawMemberData = [
+            // Existing 9 members
             { avatar: "GB", invested: 100000, returns: 4000, investmentDate: "N/A", period: "N/A" },
             { avatar: "NB", invested: 100000, returns: 3760, investmentDate: "N/A", period: "N/A" },
             { avatar: "SB", invested: 100000, returns: 5640, investmentDate: "N/A", period: "N/A" },
@@ -1466,7 +1586,17 @@
             { avatar: "SD", invested: 50000, returns: 455, investmentDate: "N/A", period: "N/A" },
             { avatar: "AB", invested: 20000, returns: 182, investmentDate: "N/A", period: "N/A" },
             { avatar: "NI", invested: 10000, returns: 91, investmentDate: "N/A", period: "N/A" },
-            { avatar: "AD", invested: 10000, returns: 91, investmentDate: "N/A", period: "N/A" }
+            { avatar: "AD", invested: 10000, returns: 91, investmentDate: "N/A", period: "N/A" },
+            
+            // Previous 5 new members
+            { avatar: "KB", invested: 200000, returns: 661, investmentDate: "N/A", period: "N/A" },
+            { avatar: "SB", invested: 50000, returns: 165, investmentDate: "N/A", period: "N/A" }, // Will become SB02
+            { avatar: "SD", invested: 50000, returns: 165, investmentDate: "N/A", period: "N/A" }, // Will become SD02
+            { avatar: "BB", invested: 100000, returns: 330, investmentDate: "N/A", period: "N/A" },
+            { avatar: "TB", invested: 50000, returns: 165, investmentDate: "N/A", period: "N/A" },
+            
+            // NEW member (KB02)
+            { avatar: "KB", invested: 50000, returns: 165, investmentDate: "N/A", period: "N/A" }
         ];
 
         // --- Core logic to process, sort, and re-rank the data ---
@@ -1496,6 +1626,14 @@
                 rank: index + 1
             };
         });
+        
+        // --- Calculate Portfolio Totals for Overview Card ---
+        const totalInvested = rawMemberData.reduce((sum, member) => sum + member.invested, 0); // 1,000,000
+        const totalReturns = rawMemberData.reduce((sum, member) => sum + member.returns, 0);     // 21,280
+        const totalCurrentValue = totalInvested + totalReturns;                                   // 1,021,280
+        const overallPercentage = (totalReturns / totalInvested) * 100;                           // 2.128% -> 2.13%
+        
+        // --- End Portfolio Totals ---
 
         function formatNumber(num) {
             return num.toLocaleString('en-IN', {
@@ -1523,6 +1661,12 @@
                     ...member,
                     baseAvatar: baseInitials, 
                     avatar: uniqueAvatar, 
+                    // Store raw numbers for animation/unformatted display
+                    investedRaw: member.invested,
+                    currentRaw: member.current,
+                    returnsRaw: member.returns,
+
+                    // Store formatted numbers for table display
                     invested: formatNumber(member.invested),
                     current: formatNumber(member.current),
                     returns: formatNumber(member.returns),
@@ -1532,17 +1676,23 @@
         }
         
         function applyCustomDates(data) {
-            // UPDATED: Changed all years from 2024 to 2025
+            // UPDATED: Changed all years to 2025 and included new members' dates
             const dateUpdates = {
-                "AB01": "Sep 5, 2025", 
                 "SB01": "Sep 12, 2025", 
+                "AB01": "Sep 5, 2025", 
                 "GB01": "Sep 15, 2025", 
                 "NB01": "Sep 19, 2025", 
+                "KB01": "Oct 1, 2025", 
                 "AB02": "Sep 25, 2025", 
                 "SD01": "Sep 25, 2025", 
+                "BB01": "Oct 1, 2025", 
                 "AB03": "Sep 25, 2025", 
+                "SB02": "Oct 1, 2025", 
+                "SD02": "Oct 1, 2025", 
+                "TB01": "Oct 1, 2025", 
                 "NI01": "Sep 25, 2025", 
-                "AD01": "Sep 25, 2025" 
+                "AD01": "Sep 25, 2025",
+                "KB02": "Oct 1, 2025" 
             };
 
             return data.map(member => {
@@ -1584,6 +1734,7 @@
                 currentPinnedId = newId;
                 updatePinnedIdDisplay(currentPinnedId);
                 generateLeaderboardTable(currentPinnedId);
+                updateUserPortfolioOverview(currentPinnedId); // Update personalized view on save
                 toggleSettingsPopup(false);
             } else {
                 alert('Invalid Member ID. Please enter a valid ID (e.g., AB01).');
@@ -1595,6 +1746,7 @@
             currentPinnedId = null;
             updatePinnedIdDisplay(null);
             generateLeaderboardTable(null);
+            updateUserPortfolioOverview(null); // Clear personalized view on unpin
             toggleSettingsPopup(false);
         }
         
@@ -1642,6 +1794,9 @@
 
         function generateLeaderboardTable(pinnedId) {
             const tableBody = document.getElementById('leaderboard-table-body');
+            // FIX: Remove flex styles from tbody to ensure proper column alignment
+            tableBody.style.display = ''; 
+            tableBody.style.flexDirection = ''; 
             tableBody.innerHTML = ''; 
 
             let pinnedMember = null;
@@ -1734,6 +1889,111 @@
                 document.getElementById('podium-name-3').textContent = memberData[2].avatar;
             }
         }
+        
+        // Custom function to animate numbers in the Portfolio Overview card
+        function animateValue(elementId, start, end, duration) {
+            const obj = document.getElementById(elementId);
+            if (!obj) return;
+            
+            let startTimestamp = null;
+            const formatRupees = (num) => {
+                const rounded = Math.round(num);
+                return `₹${rounded.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            };
+
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentValue = progress * (end - start) + start;
+                
+                // Update text content with Rupee symbol and Indian formatting
+                obj.textContent = formatRupees(currentValue);
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.textContent = formatRupees(end); // Ensure final value is accurate
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // 1. Global Portfolio Overview Update
+        function updatePortfolioOverview() {
+            const returnsDisplay = document.getElementById('returnsSummaryDisplay');
+            
+            // Format numbers to Indian Rupees
+            const formatRupees = (num) => `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            const returnsSign = totalReturns >= 0 ? '+' : '-';
+            const returnsColor = totalReturns >= 0 ? '#4ade80' : '#f87171';
+
+            // Set the returns summary text
+            returnsDisplay.textContent = `${returnsSign}${overallPercentage.toFixed(2)}% (${returnsSign}${formatRupees(Math.abs(totalReturns))})`;
+            returnsDisplay.style.color = returnsColor;
+
+            // Animate the main invested and current values
+            const duration = 1500;
+            animateValue('investedAmountDisplay', 0, totalInvested, duration);
+            animateValue('currentValueDisplay', 0, totalCurrentValue, duration);
+        }
+
+        // 2. Personalized User Portfolio Overview Update (NEW FUNCTION)
+        function updateUserPortfolioOverview(pinnedId) {
+            const userStatsSection = document.getElementById('userStats');
+            
+            if (!pinnedId) {
+                userStatsSection.style.display = 'none';
+                // Reset the animation flag when hidden
+                userStatsSection.dataset.animatedUser = 'false'; 
+                return;
+            }
+
+            const member = memberData.find(m => m.avatar === pinnedId);
+            
+            if (member) {
+                userStatsSection.style.display = 'block';
+                
+                const investedRaw = member.investedRaw;
+                const currentRaw = member.currentRaw;
+                const returnsRaw = member.returnsRaw;
+                const percentage = member.percentage;
+                const investedDate = member.investmentDate;
+
+                // Elements
+                const titleEl = document.getElementById('userOverviewTitle');
+                const returnsEl = document.getElementById('userReturnsSummaryDisplay');
+                const dateEl = document.getElementById('userInvestedDateDisplay');
+
+                // Logic
+                const returnsSign = returnsRaw >= 0 ? '+' : '-';
+                const returnsColor = returnsRaw >= 0 ? '#4ade80' : '#f87171';
+                const formatRupees = (num) => `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
+                // Set content
+                titleEl.textContent = `Your Portfolio: ${pinnedId}`;
+                returnsEl.textContent = `${returnsSign}${percentage}% (${returnsSign}${formatRupees(Math.abs(returnsRaw))})`;
+                returnsEl.style.color = returnsColor;
+                dateEl.textContent = `Invested Date: ${investedDate}`;
+                
+                // Only animate if not already animated (or if the flag was reset)
+                const userInvestedDisplay = document.getElementById('userInvestedAmountDisplay');
+                const userCurrentDisplay = document.getElementById('userCurrentValueDisplay');
+                
+                // Temporarily store raw values as data attributes for animation logic
+                userInvestedDisplay.dataset.value = investedRaw;
+                userCurrentDisplay.dataset.value = currentRaw;
+                
+                if (userStatsSection.dataset.animatedUser !== 'true') {
+                    const duration = 1500;
+                    animateValue('userInvestedAmountDisplay', 0, investedRaw, duration);
+                    animateValue('userCurrentValueDisplay', 0, currentRaw, duration);
+                    userStatsSection.dataset.animatedUser = 'true';
+                }
+            } else {
+                userStatsSection.style.display = 'none';
+            }
+        }
+
 
         function initializeSearch() {
             const searchInput = document.getElementById('memberSearch');
@@ -1851,29 +2111,6 @@
             }
         }
         
-        function animateCounters() {
-            const counters = document.querySelectorAll('.summary-number[data-target]');
-            
-            counters.forEach(counter => {
-                const target = parseFloat(counter.getAttribute('data-target'));
-                const increment = target / 100;
-                let current = 0;
-                
-                if (counter.timer) clearInterval(counter.timer);
-
-                counter.timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(counter.timer);
-                    }
-                    
-                    const decimals = target % 1 !== 0 ? 2 : 0;
-                    counter.textContent = current.toFixed(decimals);
-                }, 20);
-            });
-        }
-        
         function handleScrollAnimations() {
             const elements = document.querySelectorAll('.fade-in');
             
@@ -1883,6 +2120,17 @@
                 
                 if (elementTop < window.innerHeight - elementVisible) {
                     element.classList.add('visible');
+                    // Trigger portfolio animation only when the card becomes visible
+                    if (element.id === 'stats' && !element.dataset.animated) {
+                        updatePortfolioOverview();
+                        element.dataset.animated = 'true';
+                    }
+                    // Trigger user portfolio animation if visible and not yet animated
+                    if (element.id === 'userStats' && currentPinnedId && !element.dataset.animatedUser) {
+                         // We manually call updateUserPortfolioOverview to ensure animation is triggered based on pinned ID
+                         updateUserPortfolioOverview(currentPinnedId);
+                         element.dataset.animatedUser = 'true';
+                    }
                 }
             });
         }
@@ -1890,9 +2138,12 @@
 
         // --- Initialization and Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Note: updatePortfolioOverview is now called via scroll handler
+            
             // Load pinned ID and render table based on it
             const initialPinnedId = loadPinnedId();
             generateLeaderboardTable(initialPinnedId); // This should now run successfully
+            updateUserPortfolioOverview(initialPinnedId); // Initialize the personalized card state
 
             createParticles();
             initializeSearch();
@@ -1934,19 +2185,7 @@
                 }
             });
             
-            const statsSection = document.querySelector('.stats-summary');
-            if (statsSection) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            animateCounters();
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.5 }); 
-                observer.observe(statsSection);
-            }
-            
+            // Initial call and setting up scroll listener for animations
             handleScrollAnimations();
         });
 
